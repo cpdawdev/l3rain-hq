@@ -1,25 +1,24 @@
 {
-  "_comment": "Live state for the L3RAIN Command Center. Mirrors the /status board (https://l3rain-arch-docs-stage.cpda-wdev.workers.dev/status). Your orchestrator / build loop should overwrite this file. department status: working | error | waiting | idle | opening | paused | done. When an agent/department hits a token or rate limit and is NOT producing, write 'paused' (or 'idle') — do NOT leave it 'working'.",
   "phases": [
-    { "name": "PHASE 0 · FOUNDATIONS", "pct": 100 },
-    { "name": "PHASE 1 · MVP + PILOT", "pct": 95 },
-    { "name": "PHASE 2 · AUTO PROVISIONING", "pct": 80 },
-    { "name": "PHASE 3 · AGENT-RUN OPS", "pct": 80 },
-    { "name": "PHASE 4 · SCALE + OVERNIGHT", "pct": 25 }
+    { "name": "PHASE 0 · PREPARATION", "pct": 100 },
+    { "name": "PHASE 1 · PLANNING", "pct": 100 },
+    { "name": "PHASE 2 · EXECUTION", "pct": 74 },
+    { "name": "PHASE 3 · VALIDATION", "pct": 41 },
+    { "name": "PHASE 4 · OPTIMIZATION", "pct": 12 }
   ],
   "departments": {
     "orchestrator": "working",
     "engineering": "working",
     "infra": "working",
-    "integrations": "working",
-    "customer": "working",
-    "marketing": "idle",
-    "csuite": "waiting"
+    "integrations": "waiting",
+    "customer": "idle",
+    "marketing": "working",
+    "csuite": "opening"
   },
   "feed": [
-    { "k": "Overall vision", "v": "~70%", "c": "#67e8f9" },
-    { "k": "Build loop", "v": "running", "c": "#4ade80" },
-    { "k": "Waker", "v": "self-healing", "c": "#4ade80" },
-    { "k": "Tier-3 gates", "v": "2 await Joseph", "c": "#facc15" }
+    { "k": "Repo state", "v": "clean", "c": "#4ade80" },
+    { "k": "GH Actions", "v": "run OK", "c": "#4ade80" },
+    { "k": "Resume-queue", "v": "active", "c": "#67e8f9" },
+    { "k": "Waker", "v": "armed", "c": "#facc15" }
   ]
 }
