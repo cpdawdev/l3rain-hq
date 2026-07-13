@@ -63,5 +63,5 @@ jobs:
           git config user.name "l3rain-bot"
           git config user.email "actions@github.com"
           git add state.json
-          git diff --staged --quiet || git commit -m "chore: update dashboard state"
+          git diff --staged --quiet || git commit -m "chore: update dashboard state [skip ci]"
           git push
