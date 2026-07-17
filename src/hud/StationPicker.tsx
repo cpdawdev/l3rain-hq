@@ -47,7 +47,7 @@ export function StationPicker({ engine, manifest }: StationPickerProps) {
 
   return (
     <aside
-      className="absolute top-3 right-3 z-20 w-64 rounded-md border border-hq-border bg-hq-panel/95 p-3 text-xs"
+      className="absolute right-3 bottom-44 z-20 w-64 rounded-md border border-hq-border bg-hq-panel/95 p-3 text-xs"
       data-testid="station-picker"
     >
       <h2 className="mb-2 font-semibold tracking-widest text-hq-cyan">STATION PICKER · DEV</h2>

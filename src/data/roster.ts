@@ -26,6 +26,22 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
   'c-suite': 'C-suite',
 };
 
+/** Restrained per-department accent colors (hex, shared by HUD + engine). */
+export const DEPARTMENT_COLORS: Record<Department, string> = {
+  orchestrator: '#67e8f9',
+  engineering: '#4ade80',
+  'infra-ops': '#f87171',
+  integrations: '#facc15',
+  customer: '#fdba74',
+  'marketing-design': '#a78bfa',
+  'c-suite': '#94a3b8',
+};
+
+/** '#rrggbb' → 0xrrggbb for Pixi. */
+export function hexToNumber(hex: string): number {
+  return Number.parseInt(hex.slice(1), 16);
+}
+
 export interface RosterAgent {
   /** Stable kebab-case id — also the asset filename stem. */
   readonly id: string;

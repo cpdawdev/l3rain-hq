@@ -3,6 +3,8 @@ import type { Manifest } from '../manifest/schema';
 import { Camera } from './camera';
 import { createBackdrop } from './backdrop';
 import { buildAgentLayer, type AgentVisual } from './agents';
+import { LabelLayer } from './labels';
+import { Graphics } from 'pixi.js';
 
 export interface EngineLayers {
   /** painted backdrop (or checker placeholder) */
@@ -35,6 +37,10 @@ export class HqEngine {
 
   /** all 30 agent visuals by id */
   readonly agents = new Map<string, AgentVisual>();
+  /** screen-space label layer (created in create()) */
+  labels!: LabelLayer;
+
+  private selectionMarker: Graphics | null = null;
 
   private readonly resizeObserver: ResizeObserver;
   private readonly worldClickListeners = new Set<(x: number, y: number) => void>();
@@ -121,7 +127,42 @@ export class HqEngine {
     );
     for (const [id, visual] of agentLayer.visuals) engine.agents.set(id, visual);
     engine.errors.push(...agentLayer.errors);
+
+    engine.labels = new LabelLayer(engine.overlay, engine.agents, {
+      worldToScreen: (wx, wy) => engine.worldToScreen(wx, wy),
+      fitScale: () => engine.camera.fitScale(),
+    });
+    engine.camera.onChange((view) => {
+      engine.labels.sync(view);
+    });
+    engine.labels.sync(engine.camera.getView());
+
+    window.__l3rainDebug = {
+      agentCount: engine.agents.size,
+      labelCount: () => engine.labels.count,
+      errors: engine.errors,
+    };
     return engine;
+  }
+
+  /** Highlight the selected agent with a restrained cyan foot ring. */
+  setSelected(id: string | null): void {
+    if (this.selectionMarker) {
+      this.selectionMarker.destroy();
+      this.selectionMarker = null;
+    }
+    this.labels.setSelected(id);
+    if (id === null) return;
+    const visual = this.agents.get(id);
+    if (!visual) return;
+    const r = Math.max(14, visual.height * 0.35);
+    const marker = new Graphics()
+      .ellipse(0, 0, r, r * 0.36)
+      .stroke({ color: 0x67e8f9, width: 2, alpha: 0.9 })
+      .ellipse(0, 0, r * 1.25, r * 0.45)
+      .stroke({ color: 0x67e8f9, width: 1, alpha: 0.35 });
+    visual.container.addChildAt(marker, 0);
+    this.selectionMarker = marker;
   }
 
   onAgentTap(listener: (id: string) => void): () => void {

@@ -52,6 +52,12 @@ export class Camera {
     return this.view;
   }
 
+  /** The scale that exactly fits the world in the current viewport. */
+  fitScale(): number {
+    const { width, height } = this.hostSize();
+    return fitView(width, height, this.worldW, this.worldH).scale;
+  }
+
   /** Fit-on-load / reset / responsive re-fit. */
   fit(): void {
     const { width, height } = this.hostSize();

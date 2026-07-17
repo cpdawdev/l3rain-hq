@@ -3,11 +3,15 @@ import { loadManifest } from './manifest/loader';
 import type { ManifestValidation } from './manifest/schema';
 import { WorldCanvas } from './hud/WorldCanvas';
 import { StationPicker } from './hud/StationPicker';
+import { Inspector } from './hud/Inspector';
+import { Controls } from './hud/Controls';
 import type { HqEngine } from './engine/HqEngine';
+import { uiStore, useUiState, LABEL_SIZE_FACTOR } from './state/store';
 
 export function App() {
   const [validation, setValidation] = useState<ManifestValidation | null>(null);
   const [engine, setEngine] = useState<HqEngine | null>(null);
+  const ui = useUiState();
 
   const devMode = useMemo(() => new URLSearchParams(window.location.search).get('dev') === '1', []);
 
@@ -20,6 +24,25 @@ export function App() {
       alive = false;
     };
   }, []);
+
+  // engine → store: agent selection
+  useEffect(() => {
+    if (!engine) return;
+    return engine.onAgentTap((id) => {
+      uiStore.set({ selectedAgentId: id });
+    });
+  }, [engine]);
+
+  // store → engine: selection highlight + label config
+  useEffect(() => {
+    engine?.setSelected(ui.selectedAgentId);
+  }, [engine, ui.selectedAgentId]);
+
+  useEffect(() => {
+    if (!engine) return;
+    engine.labels.setMode(ui.labelMode);
+    engine.labels.setSizeFactor(LABEL_SIZE_FACTOR[ui.labelSize]);
+  }, [engine, ui.labelMode, ui.labelSize]);
 
   const issues = [...(validation?.errors ?? []), ...(engine?.errors ?? [])];
 
@@ -36,6 +59,12 @@ export function App() {
       <header className="pointer-events-none absolute top-3 left-3 z-10 rounded-md border border-hq-border bg-hq-panel/85 px-3 py-1.5">
         <h1 className="text-xs font-semibold tracking-[0.3em] text-hq-cyan">L3RAIN HEADQUARTERS</h1>
       </header>
+
+      <Controls />
+
+      {ui.selectedAgentId !== null && (
+        <Inspector agentId={ui.selectedAgentId} visual={engine?.agents.get(ui.selectedAgentId)} />
+      )}
 
       {devMode && engine !== null && validation !== null && (
         <StationPicker engine={engine} manifest={validation.manifest} />
