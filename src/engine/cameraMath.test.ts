@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { clamp, constrainPan, fitView, panBy, zoomAt, zoomBounds } from './cameraMath';
+import {
+  clamp,
+  constrainPan,
+  distance,
+  fitView,
+  midpoint,
+  panBy,
+  pinchView,
+  zoomAt,
+  zoomBounds,
+} from './cameraMath';
 
 describe('fitView', () => {
   it('fits a wide world into a 16:9 viewport, centered', () => {
@@ -56,6 +66,54 @@ describe('panBy / constrainPan', () => {
     const v = constrainPan({ scale: 0.5, x: 99999, y: -99999 }, 1920, 1080, 3840, 2160, 120);
     expect(v.x).toBeLessThanOrEqual(1920 - 120);
     expect(v.y).toBeGreaterThanOrEqual(120 - 2160 * 0.5);
+  });
+});
+
+describe('pinchView (two-finger gesture)', () => {
+  const bounds = zoomBounds(0.5);
+
+  it('midpoint helpers', () => {
+    expect(midpoint({ x: 0, y: 0 }, { x: 10, y: 20 })).toEqual({ x: 5, y: 10 });
+    expect(distance({ x: 0, y: 0 }, { x: 3, y: 4 })).toBeCloseTo(5);
+  });
+
+  it('scales by the spread factor, anchored at the pinch midpoint', () => {
+    const v0 = { scale: 0.5, x: 100, y: 50 };
+    const mid = { x: 400, y: 300 };
+    // fingers spread ×2 without the midpoint moving
+    const v1 = pinchView(v0, mid, mid, 2, bounds);
+    expect(v1.scale).toBeCloseTo(1);
+    // the world point under the midpoint stays under it
+    const wx = (mid.x - v0.x) / v0.scale;
+    const wy = (mid.y - v0.y) / v0.scale;
+    expect(wx * v1.scale + v1.x).toBeCloseTo(mid.x);
+    expect(wy * v1.scale + v1.y).toBeCloseTo(mid.y);
+  });
+
+  it('pans with the moving midpoint (two-finger pan at factor 1)', () => {
+    const v0 = { scale: 0.5, x: 0, y: 0 };
+    const v1 = pinchView(v0, { x: 200, y: 200 }, { x: 260, y: 170 }, 1, bounds);
+    expect(v1.scale).toBeCloseTo(0.5);
+    expect(v1.x).toBeCloseTo(60);
+    expect(v1.y).toBeCloseTo(-30);
+  });
+
+  it('pins the world point under the old midpoint to the new midpoint while zooming', () => {
+    const v0 = { scale: 0.8, x: -40, y: 25 };
+    const oldMid = { x: 300, y: 400 };
+    const newMid = { x: 340, y: 360 };
+    const wx = (oldMid.x - v0.x) / v0.scale;
+    const wy = (oldMid.y - v0.y) / v0.scale;
+    const v1 = pinchView(v0, oldMid, newMid, 1.5, bounds);
+    expect(wx * v1.scale + v1.x).toBeCloseTo(newMid.x);
+    expect(wy * v1.scale + v1.y).toBeCloseTo(newMid.y);
+  });
+
+  it('clamps the pinch scale to the zoom bounds', () => {
+    const v = { scale: 0.5, x: 0, y: 0 };
+    const mid = { x: 0, y: 0 };
+    expect(pinchView(v, mid, mid, 1e9, bounds).scale).toBeCloseTo(bounds.max);
+    expect(pinchView(v, mid, mid, 1e-9, bounds).scale).toBeCloseTo(bounds.min);
   });
 });
 

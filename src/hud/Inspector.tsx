@@ -25,7 +25,7 @@ export function Inspector({ agentId, visual, activity }: InspectorProps) {
 
   return (
     <aside
-      className="absolute top-14 right-3 z-10 w-72 rounded-lg border border-hq-border bg-hq-panel/95 p-4 shadow-xl backdrop-blur"
+      className="absolute top-14 right-3 z-10 w-72 max-w-[calc(100vw-1.5rem)] rounded-lg border border-hq-border bg-hq-panel/95 p-4 shadow-xl backdrop-blur"
       data-testid="inspector"
     >
       <div className="flex items-start justify-between">

@@ -118,6 +118,8 @@ export class HqEngine {
       resolution: Math.min(window.devicePixelRatio || 1, 2),
       autoDensity: true,
     });
+    // Safari must never hijack canvas gestures for page scroll/zoom.
+    app.canvas.style.touchAction = 'none';
     host.appendChild(app.canvas);
 
     const backdrop = await createBackdrop(manifest);

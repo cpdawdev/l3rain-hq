@@ -1,5 +1,6 @@
 import type { HqData, DepartmentStatus } from '../data/provider';
 import { DEPARTMENTS, DEPARTMENT_LABELS } from '../data/roster';
+import { uiStore, useUiState } from '../state/store';
 
 const STATUS_DOT: Record<DepartmentStatus, string> = {
   working: '#4ade80',
@@ -190,26 +191,65 @@ function FeedPanel({ data }: { data: HqData }) {
   );
 }
 
-/** Left HUD column — pure React, fed by the DataProvider snapshot. */
-export function Hud({ data }: { data: HqData | null }) {
+function Panels({ data }: { data: HqData | null }) {
   if (data === null) {
     return (
-      <div className="absolute top-12 left-3 z-10 w-64 rounded-lg border border-hq-border bg-hq-panel/88 p-3 text-[11px] text-hq-text-dim">
+      <div className="rounded-lg border border-hq-border bg-hq-panel/88 p-3 text-[11px] text-hq-text-dim">
         connecting data…
       </div>
     );
   }
   return (
-    <div
-      className="absolute top-12 bottom-14 left-3 z-10 flex w-64 flex-col gap-2 overflow-y-auto pr-1"
-      data-testid="hud"
-    >
+    <>
       <PhaseBars data={data} />
       <CompletionRing data={data} />
       <DepartmentList data={data} />
       <ActivityCounts data={data} />
       <UsageStrip data={data} />
       <FeedPanel data={data} />
-    </div>
+    </>
+  );
+}
+
+/**
+ * HUD — pure React, fed by the DataProvider snapshot.
+ * ≥768px (md): fixed left rail. <768px: the rail collapses entirely so the
+ * world gets the full screen; a STATUS button opens the same panels as a
+ * dismissible overlay drawer.
+ */
+export function Hud({ data }: { data: HqData | null }) {
+  const ui = useUiState();
+  return (
+    <>
+      {/* desktop rail */}
+      <div
+        className="absolute top-12 bottom-14 left-3 z-10 hidden w-64 flex-col gap-2 overflow-y-auto pr-1 md:flex"
+        data-testid="hud"
+      >
+        <Panels data={data} />
+      </div>
+
+      {/* mobile: toggle button + overlay drawer */}
+      <button
+        type="button"
+        data-testid="hud-toggle"
+        aria-label="Toggle status panel"
+        aria-expanded={ui.hudOpen}
+        className="absolute top-3 right-3 z-30 rounded-md border border-hq-border bg-hq-panel/90 px-3 py-1.5 text-[11px] font-semibold tracking-widest text-hq-cyan md:hidden"
+        onClick={() => {
+          uiStore.set({ hudOpen: !ui.hudOpen });
+        }}
+      >
+        {ui.hudOpen ? 'CLOSE' : 'STATUS'}
+      </button>
+      {ui.hudOpen && (
+        <div
+          className="absolute inset-y-0 left-0 z-20 flex w-[85vw] max-w-xs flex-col gap-2 overflow-y-auto border-r border-hq-border bg-hq-bg/95 p-3 pt-14 backdrop-blur md:hidden"
+          data-testid="hud-drawer"
+        >
+          <Panels data={data} />
+        </div>
+      )}
+    </>
   );
 }

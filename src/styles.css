@@ -18,6 +18,8 @@ html,
 body,
 #root {
   height: 100%;
+  /* iOS Safari: track the dynamic viewport (URL bar collapse) so the world always fills the screen */
+  height: 100dvh;
   margin: 0;
   background: var(--color-hq-bg);
   color: var(--color-hq-text);

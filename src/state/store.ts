@@ -9,6 +9,8 @@ export interface UiState {
   labelSize: LabelSize;
   reducedMotion: boolean;
   paused: boolean;
+  /** narrow-screen HUD drawer (the rail collapses below the md breakpoint) */
+  hudOpen: boolean;
 }
 
 const prefersReducedMotion =
@@ -22,6 +24,7 @@ let state: UiState = {
   labelSize: 'medium',
   reducedMotion: prefersReducedMotion,
   paused: false,
+  hudOpen: false,
 };
 
 const listeners = new Set<() => void>();

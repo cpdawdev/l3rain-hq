@@ -43,7 +43,7 @@ export function Controls() {
   const ui = useUiState();
   return (
     <div
-      className="absolute bottom-3 left-3 z-10 flex items-center gap-3 rounded-md border border-hq-border bg-hq-panel/90 px-2.5 py-1.5"
+      className="absolute bottom-3 left-3 z-10 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-hq-border bg-hq-panel/90 px-2.5 py-1.5"
       data-testid="controls"
     >
       <div className="flex items-center gap-1">

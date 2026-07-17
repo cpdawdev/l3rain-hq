@@ -65,6 +65,42 @@ export function panBy(view: CameraView, dx: number, dy: number): CameraView {
   return { ...view, x: view.x + dx, y: view.y + dy };
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export function midpoint(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+export function distance(a: Point, b: Point): number {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+/**
+ * Two-finger pinch update: scales by `factor` (new spread / old spread) while
+ * keeping the world point that was under the old pinch midpoint pinned under
+ * the new midpoint — this gives midpoint-anchored zoom AND two-finger pan in
+ * one transform.
+ */
+export function pinchView(
+  view: CameraView,
+  oldMid: Point,
+  newMid: Point,
+  factor: number,
+  bounds: ZoomBounds,
+): CameraView {
+  const scale = clamp(view.scale * factor, bounds.min, bounds.max);
+  const worldX = (oldMid.x - view.x) / view.scale;
+  const worldY = (oldMid.y - view.y) / view.scale;
+  return {
+    scale,
+    x: newMid.x - worldX * scale,
+    y: newMid.y - worldY * scale,
+  };
+}
+
 /** Keep at least `keep` px of world visible on every side (prevents losing the map). */
 export function constrainPan(
   view: CameraView,
