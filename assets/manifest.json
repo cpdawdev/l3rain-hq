@@ -1,6 +1,11 @@
 {
-  "worldSpriteScale": 0.34,
-  "backdrop": null,
+  "worldSpriteScale": 0.18,
+  "backdrop": {
+    "base": "building/interim_base_plate.png",
+    "width": 1407,
+    "height": 768,
+    "interim": true
+  },
   "occluders": [],
   "agents": [
     {
@@ -11,8 +16,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 1920,
-        "y": 1120
+        "x": 752,
+        "y": 388
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -25,8 +30,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 520,
-        "y": 540
+        "x": 300,
+        "y": 238
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -39,8 +44,8 @@
       "mirrorSafe": false,
       "flip": false,
       "station": {
-        "x": 700,
-        "y": 540
+        "x": 372,
+        "y": 206
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -49,12 +54,12 @@
       "id": "franky",
       "sprite": "characters-portraits/franky.png",
       "anchor": "bottom-center",
-      "scale": 1.0,
+      "scale": 1.15,
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 880,
-        "y": 540
+        "x": 452,
+        "y": 186
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -67,8 +72,8 @@
       "mirrorSafe": false,
       "flip": false,
       "station": {
-        "x": 1060,
-        "y": 540
+        "x": 272,
+        "y": 302
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -81,8 +86,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 520,
-        "y": 720
+        "x": 352,
+        "y": 276
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -95,8 +100,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 700,
-        "y": 720
+        "x": 432,
+        "y": 252
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -109,8 +114,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 880,
-        "y": 720
+        "x": 522,
+        "y": 232
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -123,8 +128,8 @@
       "mirrorSafe": false,
       "flip": false,
       "station": {
-        "x": 1060,
-        "y": 720
+        "x": 482,
+        "y": 322
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -137,8 +142,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2180,
-        "y": 520
+        "x": 882,
+        "y": 226
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -151,8 +156,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2360,
-        "y": 520
+        "x": 956,
+        "y": 206
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -165,8 +170,8 @@
       "mirrorSafe": false,
       "flip": false,
       "station": {
-        "x": 2540,
-        "y": 520
+        "x": 930,
+        "y": 258
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -175,12 +180,12 @@
       "id": "reborn",
       "sprite": "characters-portraits/reborn.png",
       "anchor": "bottom-center",
-      "scale": 1.0,
+      "scale": 0.55,
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2180,
-        "y": 700
+        "x": 1002,
+        "y": 242
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -193,8 +198,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2360,
-        "y": 700
+        "x": 976,
+        "y": 182
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -207,8 +212,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2540,
-        "y": 700
+        "x": 1036,
+        "y": 266
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -221,8 +226,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3100,
-        "y": 560
+        "x": 1186,
+        "y": 286
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -235,8 +240,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3280,
-        "y": 560
+        "x": 1330,
+        "y": 256
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -249,8 +254,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3190,
-        "y": 720
+        "x": 1264,
+        "y": 302
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -263,8 +268,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 660,
-        "y": 1560
+        "x": 206,
+        "y": 556
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -277,8 +282,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 840,
-        "y": 1560
+        "x": 332,
+        "y": 642
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -291,8 +296,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 660,
-        "y": 1740
+        "x": 426,
+        "y": 586
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -305,8 +310,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 840,
-        "y": 1740
+        "x": 300,
+        "y": 700
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -319,8 +324,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 1720,
-        "y": 1720
+        "x": 586,
+        "y": 666
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -333,8 +338,8 @@
       "mirrorSafe": false,
       "flip": false,
       "station": {
-        "x": 1900,
-        "y": 1720
+        "x": 642,
+        "y": 626
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -347,8 +352,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 2080,
-        "y": 1720
+        "x": 752,
+        "y": 702
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -361,8 +366,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 1900,
-        "y": 1880
+        "x": 802,
+        "y": 656
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -375,8 +380,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3040,
-        "y": 1600
+        "x": 1036,
+        "y": 592
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -389,8 +394,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3220,
-        "y": 1600
+        "x": 1106,
+        "y": 566
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -403,8 +408,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3040,
-        "y": 1780
+        "x": 1182,
+        "y": 612
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -417,8 +422,8 @@
       "mirrorSafe": true,
       "flip": false,
       "station": {
-        "x": 3220,
-        "y": 1780
+        "x": 1086,
+        "y": 666
       },
       "status": "placeholder",
       "spriteKind": "portrait-token"
@@ -427,52 +432,52 @@
   "departmentRegions": [
     {
       "department": "engineering",
-      "x": 380,
-      "y": 380,
-      "width": 860,
-      "height": 480
+      "x": 190,
+      "y": 70,
+      "width": 480,
+      "height": 320
     },
     {
       "department": "infra-ops",
-      "x": 2040,
-      "y": 380,
-      "width": 660,
-      "height": 460
+      "x": 760,
+      "y": 50,
+      "width": 350,
+      "height": 260
     },
     {
       "department": "integrations",
-      "x": 2960,
-      "y": 420,
-      "width": 500,
-      "height": 440
+      "x": 1090,
+      "y": 100,
+      "width": 310,
+      "height": 230
     },
     {
       "department": "orchestrator",
-      "x": 1660,
-      "y": 860,
-      "width": 520,
-      "height": 400
+      "x": 620,
+      "y": 230,
+      "width": 310,
+      "height": 240
     },
     {
       "department": "customer",
-      "x": 520,
-      "y": 1420,
-      "width": 480,
-      "height": 460
+      "x": 80,
+      "y": 420,
+      "width": 450,
+      "height": 330
     },
     {
       "department": "marketing-design",
-      "x": 1580,
-      "y": 1580,
-      "width": 660,
-      "height": 440
+      "x": 480,
+      "y": 520,
+      "width": 360,
+      "height": 240
     },
     {
       "department": "c-suite",
-      "x": 2900,
-      "y": 1460,
-      "width": 480,
-      "height": 460
+      "x": 900,
+      "y": 440,
+      "width": 370,
+      "height": 320
     }
   ]
 }
