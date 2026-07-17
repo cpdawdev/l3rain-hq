@@ -10,6 +10,8 @@ import { DiagnosticsLayer } from './diagnostics';
 import { Graphics } from 'pixi.js';
 import type { Department } from '../data/roster';
 import type { AgentStatus, DepartmentStatus } from '../data/provider';
+import { WaypointGraph } from '../sim/waypoints';
+import { Simulation } from '../sim/Simulation';
 
 export interface EngineLayers {
   /** painted backdrop (or checker placeholder) */
@@ -48,6 +50,10 @@ export class HqEngine {
   tint!: TintLayer;
   /** ambient effects layer (created in create()) */
   effects!: EffectsLayer;
+  /** walkable waypoint graph (created in create()) */
+  graph!: WaypointGraph;
+  /** living-office simulation (created in create()) */
+  simulation!: Simulation;
   /** dev diagnostics overlay (created in create()) */
   diagnostics!: DiagnosticsLayer;
   /** latest per-agent activity (effects layer + inspector read this) */
@@ -167,6 +173,21 @@ export class HqEngine {
     });
     app.ticker.add(engine.effects.update);
 
+    // Living simulation over the walkable waypoint graph (M2.1).
+    engine.graph = new WaypointGraph(manifest.waypoints);
+    engine.errors.push(...engine.graph.connectivity(manifest.waypoints.edges));
+    engine.simulation = new Simulation({
+      graph: engine.graph,
+      visuals: engine.agents,
+      regions: manifest.departmentRegions,
+      spritesLayer: engine.layers.sprites,
+      fxLayer: engine.layers.fx,
+    });
+    app.ticker.add(engine.simulation.update);
+    // Overlay (labels + diagnostics) must re-project every frame so they ride
+    // along with walking agents, not just on camera changes.
+    app.ticker.add(engine.syncOverlay);
+
     window.__l3rainDebug = {
       agentCount: engine.agents.size,
       labelCount: () => engine.labels.count,
@@ -175,20 +196,36 @@ export class HqEngine {
       agentHitPos: (id: string) => {
         const v = engine.agents.get(id);
         if (!v) return null;
-        return engine.worldToScreen(v.entry.station.x, v.entry.station.y - v.height * 0.55);
+        // hit the LIVE foot point so clicks land on moving agents too
+        return engine.worldToScreen(v.footX, v.footY - v.height * 0.55);
       },
+      agentPos: (id: string) => {
+        const v = engine.agents.get(id);
+        return v ? { x: v.footX, y: v.footY } : null;
+      },
+      walkingCount: () => engine.simulation.walkingCount(),
+      forceWander: (id: string) => engine.simulation.forceWander(id),
       fps: () => engine.app.ticker.FPS,
       errors: engine.errors,
     };
     return engine;
   }
 
-  /** Live data → lighting overlays + per-agent activity cache. */
+  /** Re-project overlay layers (labels + diagnostics) after the sim moves agents. */
+  private readonly syncOverlay = (): void => {
+    if (this.destroyed) return;
+    this.labels.sync(this.camera.getView());
+    this.diagnostics.sync();
+  };
+
+  /** Live data → lighting overlays + per-agent activity cache + simulation. */
   applyData(
     departments: Partial<Record<Department, DepartmentStatus>>,
     agentActivity: Record<string, AgentStatus>,
+    capActive = false,
   ): void {
     this.tint.apply(departments);
+    this.simulation.setStatuses(departments, capActive);
     this.agentActivity.clear();
     for (const [id, status] of Object.entries(agentActivity)) {
       this.agentActivity.set(id, status);
@@ -256,6 +293,7 @@ export class HqEngine {
     this.resizeObserver.disconnect();
     this.camera.destroy();
     this.effects.destroy();
+    this.simulation.destroy();
     this.app.destroy(true, { children: true, texture: false });
   }
 

@@ -23,7 +23,9 @@ export interface AgentVisual {
   id: string;
   entry: AgentAsset;
   container: Container;
-  /** foot contact Y in world px — the depth key (zIndex) */
+  /** live foot contact point in world px (the simulation writes this each frame) */
+  footX: number;
+  /** foot contact Y in world px — also the depth key (zIndex) */
   footY: number;
   /** visual height above the foot point in world px (label anchoring) */
   height: number;
@@ -150,6 +152,7 @@ export async function buildAgentLayer(
       id: entry.id,
       entry,
       container,
+      footX: entry.station.x,
       footY: entry.station.y,
       height,
       path,

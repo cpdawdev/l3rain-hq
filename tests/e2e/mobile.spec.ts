@@ -9,6 +9,12 @@ import { expect, test, type CDPSession, type Page } from '@playwright/test';
 
 const URL = '/?data=mock';
 
+// These tests validate the CAMERA (pan/pinch/reset) + responsive layout, which
+// are independent of the living simulation. Freezing animation via reduced
+// motion keeps the main thread free so synthetic-touch dispatch stays fast and
+// tap-timing is deterministic under parallel headless-swiftshader load.
+test.use({ reducedMotion: 'reduce' });
+
 async function waitForEngine(page: Page): Promise<void> {
   await page.waitForSelector('[data-testid="engine-ready"]', {
     state: 'attached',

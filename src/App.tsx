@@ -40,10 +40,10 @@ export function App() {
     };
   }, []);
 
-  // data → engine: department tint overlays + agent activity
+  // data → engine: department tint overlays + agent activity + simulation
   useEffect(() => {
     if (!engine || !data) return;
-    engine.applyData(data.departments, data.agentActivity);
+    engine.applyData(data.departments, data.agentActivity, data.usage?.capActive ?? false);
   }, [engine, data]);
 
   // engine → store: agent selection
@@ -65,11 +65,13 @@ export function App() {
     engine.labels.setSizeFactor(LABEL_SIZE_FACTOR[ui.labelSize]);
   }, [engine, ui.labelMode, ui.labelSize]);
 
-  // store → engine: motion preferences
+  // store → engine: motion preferences (ambient effects + living simulation)
   useEffect(() => {
     if (!engine) return;
     engine.effects.setReducedMotion(ui.reducedMotion);
     engine.effects.setPaused(ui.paused);
+    engine.simulation.setReducedMotion(ui.reducedMotion);
+    engine.simulation.setPaused(ui.paused);
   }, [engine, ui.reducedMotion, ui.paused]);
 
   const issues = [...(validation?.errors ?? []), ...(engine?.errors ?? [])];

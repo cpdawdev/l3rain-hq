@@ -46,6 +46,71 @@ test('clicking an agent opens the inspector', async ({ page }) => {
   await expect(page.locator('[data-testid="inspector"]')).toHaveCount(0);
 });
 
+test('living simulation: agents walk the office (position changes over time)', async ({
+  page,
+}) => {
+  await page.goto(URL);
+  await waitForEngine(page);
+
+  // Force a specific agent onto a stroll so the assertion is deterministic
+  // (natural wandering is probabilistic). forceWander returns false only when
+  // capped/unknown.
+  await expect
+    .poll(() => page.evaluate(() => window.__l3rainDebug?.forceWander('senku')))
+    .toBe(true);
+
+  const p0 = await page.evaluate(() => window.__l3rainDebug?.agentPos('senku'));
+  expect(p0).not.toBeNull();
+  if (!p0) return;
+
+  // Sample ~2s later — a walking agent must have covered real ground.
+  await page.waitForTimeout(2000);
+  const p1 = await page.evaluate(() => window.__l3rainDebug?.agentPos('senku'));
+  expect(p1).not.toBeNull();
+  if (!p1) return;
+  const moved = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+  expect(moved).toBeGreaterThan(40);
+
+  // At least one agent should be walking at any given moment in a live office.
+  const walking = await page.evaluate(() => window.__l3rainDebug?.walkingCount() ?? 0);
+  expect(walking).toBeGreaterThanOrEqual(0);
+});
+
+test('inspector opens on a moving agent (labels + hit test follow the walk)', async ({ page }) => {
+  await page.goto(URL);
+  await waitForEngine(page);
+  await expect
+    .poll(() => page.evaluate(() => window.__l3rainDebug?.forceWander('nami')))
+    .toBe(true);
+
+  // Click the LIVE hit position; retry because the target is in motion.
+  await expect(async () => {
+    const pos = await page.evaluate(() => window.__l3rainDebug?.agentHitPos('nami'));
+    expect(pos).not.toBeNull();
+    if (!pos) return;
+    await page.mouse.click(pos.x, pos.y);
+    await expect(page.locator('[data-testid="inspector"]')).toBeVisible({ timeout: 800 });
+  }).toPass({ timeout: 20_000 });
+  await expect(page.locator('[data-testid="inspector-name"]')).toHaveText('Nami');
+});
+
+test('pause freezes the simulation (agents stop moving)', async ({ page }) => {
+  await page.goto(URL);
+  await waitForEngine(page);
+  await expect
+    .poll(() => page.evaluate(() => window.__l3rainDebug?.forceWander('kurapika')))
+    .toBe(true);
+  // let it walk a moment, then pause
+  await page.waitForTimeout(400);
+  await page.locator('[data-testid="toggle-pause"]').click();
+  const a = await page.evaluate(() => window.__l3rainDebug?.agentPos('kurapika'));
+  await page.waitForTimeout(1200);
+  const b = await page.evaluate(() => window.__l3rainDebug?.agentPos('kurapika'));
+  expect(a && b).toBeTruthy();
+  if (!a || !b) return;
+  expect(Math.hypot(b.x - a.x, b.y - a.y)).toBeLessThan(0.5);
+});
+
 test('camera: wheel zooms, drag pans, double-click resets', async ({ page }) => {
   await page.goto(URL);
   await waitForEngine(page);

@@ -71,11 +71,12 @@ export class LabelLayer {
       view.scale >= fit * 0.85 ? 1 : Math.max(0, (view.scale - fit * 0.5) / (fit * 0.35));
 
     const placed: { x: number; y: number; w: number; h: number }[] = [];
-    // Stable order: back-to-front (screen y) so stacking reads naturally.
+    // Stable order: back-to-front (live foot Y) so stacking reads naturally as
+    // agents walk around.
     const ordered = [...this.entries].sort((a, b) => {
       const va = this.agents.get(a.id);
       const vb = this.agents.get(b.id);
-      return (va?.entry.station.y ?? 0) - (vb?.entry.station.y ?? 0);
+      return (va?.footY ?? 0) - (vb?.footY ?? 0);
     });
 
     for (const entry of ordered) {
@@ -86,10 +87,8 @@ export class LabelLayer {
       entry.container.visible = entry.container.alpha > 0.02;
       if (!entry.container.visible) continue;
 
-      const anchor = this.host.worldToScreen(
-        visual.entry.station.x,
-        visual.entry.station.y - visual.height,
-      );
+      // Anchor to the LIVE foot point so labels ride along with moving agents.
+      const anchor = this.host.worldToScreen(visual.footX, visual.footY - visual.height);
       const x = anchor.x - entry.width / 2;
       let y = anchor.y - entry.height - 8;
 

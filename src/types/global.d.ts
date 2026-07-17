@@ -5,6 +5,12 @@ interface L3rainDebug {
   effectsAnimating: () => boolean;
   cameraView: () => { scale: number; x: number; y: number };
   agentHitPos: (id: string) => { x: number; y: number } | null;
+  /** live foot position of an agent in world px (moves with the simulation) */
+  agentPos: (id: string) => { x: number; y: number } | null;
+  /** number of agents currently walking */
+  walkingCount: () => number;
+  /** send an agent on a stroll to a break room; returns false if capped/unknown */
+  forceWander: (id: string) => boolean;
   fps: () => number;
   errors: string[];
 }

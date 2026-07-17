@@ -62,18 +62,41 @@ export const DepartmentRegionSchema = z.object({
     .optional(),
 });
 
+/**
+ * Walkable waypoint node (world pixel space). `room` hubs carry a department and
+ * are where agents enter/leave a room; `hall` are corridor junctions; `break`
+ * are social rooms (kitchen/lounge/restroom). Edited live via the station picker.
+ */
+export const WaypointNodeSchema = z.object({
+  id: z.string().min(1),
+  x: z.number(),
+  y: z.number(),
+  kind: z.enum(['room', 'hall', 'break']),
+  department: z.enum(DEPARTMENTS).optional(),
+});
+
+export const WaypointGraphSchema = z.object({
+  nodes: z.array(WaypointNodeSchema).default([]),
+  /** undirected corridor edges as [nodeIdA, nodeIdB] */
+  edges: z.array(z.tuple([z.string(), z.string()])).default([]),
+});
+
 export const ManifestSchema = z.object({
   worldSpriteScale: z.number().positive(),
   backdrop: BackdropSchema.nullable(),
   occluders: z.array(OccluderSchema).default([]),
   agents: z.array(AgentAssetSchema),
   departmentRegions: z.array(DepartmentRegionSchema).default([]),
+  /** Walkable graph for the living simulation (M2.1); empty = no locomotion. */
+  waypoints: WaypointGraphSchema.default({ nodes: [], edges: [] }),
 });
 
 export type Manifest = z.infer<typeof ManifestSchema>;
 export type AgentAsset = z.infer<typeof AgentAssetSchema>;
 export type Occluder = z.infer<typeof OccluderSchema>;
 export type DepartmentRegion = z.infer<typeof DepartmentRegionSchema>;
+export type WaypointNode = z.infer<typeof WaypointNodeSchema>;
+export type WaypointGraph = z.infer<typeof WaypointGraphSchema>;
 
 export interface ManifestValidation {
   manifest: Manifest;
