@@ -5,12 +5,16 @@ import { WorldCanvas } from './hud/WorldCanvas';
 import { StationPicker } from './hud/StationPicker';
 import { Inspector } from './hud/Inspector';
 import { Controls } from './hud/Controls';
+import { Hud } from './hud/Hud';
 import type { HqEngine } from './engine/HqEngine';
+import type { HqData } from './data/provider';
+import { selectProvider } from './data/liveProvider';
 import { uiStore, useUiState, LABEL_SIZE_FACTOR } from './state/store';
 
 export function App() {
   const [validation, setValidation] = useState<ManifestValidation | null>(null);
   const [engine, setEngine] = useState<HqEngine | null>(null);
+  const [data, setData] = useState<HqData | null>(null);
   const ui = useUiState();
 
   const devMode = useMemo(() => new URLSearchParams(window.location.search).get('dev') === '1', []);
@@ -24,6 +28,22 @@ export function App() {
       alive = false;
     };
   }, []);
+
+  // data provider (?data=live|mock, default live with mock fallback)
+  useEffect(() => {
+    const provider = selectProvider(window.location.search);
+    const off = provider.subscribe(setData);
+    return () => {
+      off();
+      provider.dispose();
+    };
+  }, []);
+
+  // data → engine: department tint overlays + agent activity
+  useEffect(() => {
+    if (!engine || !data) return;
+    engine.applyData(data.departments, data.agentActivity);
+  }, [engine, data]);
 
   // engine → store: agent selection
   useEffect(() => {
@@ -62,8 +82,14 @@ export function App() {
 
       <Controls />
 
+      <Hud data={data} />
+
       {ui.selectedAgentId !== null && (
-        <Inspector agentId={ui.selectedAgentId} visual={engine?.agents.get(ui.selectedAgentId)} />
+        <Inspector
+          agentId={ui.selectedAgentId}
+          visual={engine?.agents.get(ui.selectedAgentId)}
+          activity={data?.agentActivity[ui.selectedAgentId]}
+        />
       )}
 
       {devMode && engine !== null && validation !== null && (

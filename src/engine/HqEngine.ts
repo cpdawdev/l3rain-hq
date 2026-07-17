@@ -4,7 +4,10 @@ import { Camera } from './camera';
 import { createBackdrop } from './backdrop';
 import { buildAgentLayer, type AgentVisual } from './agents';
 import { LabelLayer } from './labels';
+import { TintLayer } from './tint';
 import { Graphics } from 'pixi.js';
+import type { Department } from '../data/roster';
+import type { AgentStatus, DepartmentStatus } from '../data/provider';
 
 export interface EngineLayers {
   /** painted backdrop (or checker placeholder) */
@@ -39,6 +42,10 @@ export class HqEngine {
   readonly agents = new Map<string, AgentVisual>();
   /** screen-space label layer (created in create()) */
   labels!: LabelLayer;
+  /** department status tint overlays (created in create()) */
+  tint!: TintLayer;
+  /** latest per-agent activity (effects layer + inspector read this) */
+  readonly agentActivity = new Map<string, AgentStatus>();
 
   private selectionMarker: Graphics | null = null;
 
@@ -128,6 +135,8 @@ export class HqEngine {
     for (const [id, visual] of agentLayer.visuals) engine.agents.set(id, visual);
     engine.errors.push(...agentLayer.errors);
 
+    engine.tint = new TintLayer(engine.layers.tint, manifest.departmentRegions);
+
     engine.labels = new LabelLayer(engine.overlay, engine.agents, {
       worldToScreen: (wx, wy) => engine.worldToScreen(wx, wy),
       fitScale: () => engine.camera.fitScale(),
@@ -143,6 +152,18 @@ export class HqEngine {
       errors: engine.errors,
     };
     return engine;
+  }
+
+  /** Live data → lighting overlays + per-agent activity cache. */
+  applyData(
+    departments: Partial<Record<Department, DepartmentStatus>>,
+    agentActivity: Record<string, AgentStatus>,
+  ): void {
+    this.tint.apply(departments);
+    this.agentActivity.clear();
+    for (const [id, status] of Object.entries(agentActivity)) {
+      this.agentActivity.set(id, status);
+    }
   }
 
   /** Highlight the selected agent with a restrained cyan foot ring. */
