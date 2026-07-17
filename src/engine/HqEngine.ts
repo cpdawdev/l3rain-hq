@@ -2,6 +2,7 @@ import { Application, Container } from 'pixi.js';
 import type { Manifest } from '../manifest/schema';
 import { Camera } from './camera';
 import { createBackdrop } from './backdrop';
+import { buildAgentLayer, type AgentVisual } from './agents';
 
 export interface EngineLayers {
   /** painted backdrop (or checker placeholder) */
@@ -32,8 +33,12 @@ export class HqEngine {
   /** non-fatal problems for the diagnostics panel */
   readonly errors: string[];
 
+  /** all 30 agent visuals by id */
+  readonly agents = new Map<string, AgentVisual>();
+
   private readonly resizeObserver: ResizeObserver;
   private readonly worldClickListeners = new Set<(x: number, y: number) => void>();
+  private readonly agentTapListeners = new Set<(id: string) => void>();
   private destroyed = false;
 
   private constructor(
@@ -97,7 +102,7 @@ export class HqEngine {
     host.appendChild(app.canvas);
 
     const backdrop = await createBackdrop(manifest);
-    return new HqEngine(host, app, {
+    const engine = new HqEngine(host, app, {
       worldWidth: backdrop.width,
       worldHeight: backdrop.height,
       backdrop: backdrop.container,
@@ -105,6 +110,34 @@ export class HqEngine {
       backdropInterim: backdrop.interim,
       errors: backdrop.errors,
     });
+
+    const agentLayer = await buildAgentLayer(
+      manifest,
+      engine.layers.sprites,
+      backdrop.height,
+      (id) => {
+        for (const l of engine.agentTapListeners) l(id);
+      },
+    );
+    for (const [id, visual] of agentLayer.visuals) engine.agents.set(id, visual);
+    engine.errors.push(...agentLayer.errors);
+    return engine;
+  }
+
+  onAgentTap(listener: (id: string) => void): () => void {
+    this.agentTapListeners.add(listener);
+    return () => this.agentTapListeners.delete(listener);
+  }
+
+  /** Station-picker support: move an agent's station live (world px). */
+  moveAgent(id: string, x: number, y: number): void {
+    const visual = this.agents.get(id);
+    if (!visual) return;
+    visual.container.position.set(x, y);
+    visual.container.zIndex = y;
+    visual.footY = y;
+    visual.entry.station.x = x;
+    visual.entry.station.y = y;
   }
 
   /** screen (host-local) → world/backdrop pixel coordinates */
