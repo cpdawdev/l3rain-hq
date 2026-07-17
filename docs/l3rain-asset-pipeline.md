@@ -12,7 +12,7 @@ Your two existing images are the anchors for everything:
 Rule #1 of this entire pipeline: **never generate from text alone.**
 Every generation includes one of the two anchor images as an image/character/style reference
 (img2img, character reference, style reference, or omni-reference — whatever your tool calls it).
-Your anchors already contain the style; you are asking the model to *redraw what it can see*,
+Your anchors already contain the style; you are asking the model to _redraw what it can see_,
 not to imagine something new. This is why your recipe already works — keep using it.
 
 ---
@@ -74,13 +74,13 @@ Notes:
 
 ### 1.3 Canvas, scale, and baseline spec (this is what makes 30 sprites match)
 
-| Property | Value |
-|---|---|
-| Generation canvas | 1024 × 1024 |
-| Character height | 80–88% of canvas height, consistent across all 30 |
-| Feet baseline | feet touch an imaginary line at **y = 92%** of canvas height |
-| Export after cutout | trim transparent pixels, then resize to **512 px height**, keep aspect |
-| Anchor point (for the engine) | bottom-center of the trimmed image = foot contact point |
+| Property                      | Value                                                                  |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| Generation canvas             | 1024 × 1024                                                            |
+| Character height              | 80–88% of canvas height, consistent across all 30                      |
+| Feet baseline                 | feet touch an imaginary line at **y = 92%** of canvas height           |
+| Export after cutout           | trim transparent pixels, then resize to **512 px height**, keep aspect |
+| Anchor point (for the engine) | bottom-center of the trimmed image = foot contact point                |
 
 Exceptions, on purpose:
 
@@ -92,7 +92,7 @@ Exceptions, on purpose:
 ### 1.4 Facing direction and mirroring
 
 - Generate **SE-facing only** for v1. The engine mirrors horizontally to fake SW.
-- Mirroring is *wrong* for asymmetric designs. Flag these in the manifest as
+- Mirroring is _wrong_ for asymmetric designs. Flag these in the manifest as
   `mirrorSafe: false` and either accept the flip for v1 or generate a second
   SW sprite for them later: **Edward Elric** (automail arm), **Sanji** (hair over
   one eye / eyebrow), **Sai** (brush hand), **Trafalgar Law** (sword side),
@@ -137,11 +137,11 @@ Re-roll outliers immediately; do not "fix it later."
 
 ### 2.1 Layer model
 
-| Layer | Content | Rendered by |
-|---|---|---|
-| **L0 — Base plate** | floors, walls, ALL furniture, room structure, hallways, doors | one big illustration |
-| **L1 — Foreground occluders** | pieces characters must walk *behind* (front desks, front walls, plants near camera) | cut out of L0 as transparent PNGs |
-| **L2 — Light & glow** | hologram glows, screen light, neon edges, orchestrator aura | **code** (PixiJS), not paint |
+| Layer                         | Content                                                                             | Rendered by                       |
+| ----------------------------- | ----------------------------------------------------------------------------------- | --------------------------------- |
+| **L0 — Base plate**           | floors, walls, ALL furniture, room structure, hallways, doors                       | one big illustration              |
+| **L1 — Foreground occluders** | pieces characters must walk _behind_ (front desks, front walls, plants near camera) | cut out of L0 as transparent PNGs |
+| **L2 — Light & glow**         | hologram glows, screen light, neon edges, orchestrator aura                         | **code** (PixiJS), not paint      |
 
 Keeping L2 in code is what makes the scene feel alive with zero animation frames:
 screens flicker, holograms rotate, the aura pulses — all shader/tween effects on
@@ -222,26 +222,25 @@ Single source of truth at `assets/manifest.json`, Zod-validated by the engine:
 
 ```jsonc
 {
-  "worldSpriteScale": 0.34,          // from the calibration test
+  "worldSpriteScale": 0.34, // from the calibration test
   "backdrop": {
     "base": "building/base_plate.png",
-    "width": 3840, "height": 2160
+    "width": 3840,
+    "height": 2160,
   },
-  "occluders": [
-    { "file": "building/occluder_boardroom_table.png", "depthY": 1712 }
-  ],
+  "occluders": [{ "file": "building/occluder_boardroom_table.png", "depthY": 1712 }],
   "agents": [
     {
       "id": "sung-jin-woo",
       "sprite": "characters/sung-jin-woo_idle_se.png",
       "anchor": "bottom-center",
-      "scale": 1.0,                  // per-agent multiplier (Reborn ≈ 0.55, Franky ≈ 1.15)
+      "scale": 1.0, // per-agent multiplier (Reborn ≈ 0.55, Franky ≈ 1.15)
       "mirrorSafe": true,
-      "station": { "x": 1920, "y": 1080 },   // pixel position on the backdrop
-      "status": "production"          // or "placeholder"
-    }
+      "station": { "x": 1920, "y": 1080 }, // pixel position on the backdrop
+      "status": "production", // or "placeholder"
+    },
     // … 29 more
-  ]
+  ],
 }
 ```
 
@@ -258,7 +257,7 @@ dimmed silhouette with a visible `PLACEHOLDER` tag — never as fake final art.
 4. **Engine build** (parallel with #3) — Claude Code builds against the manifest using
    placeholders; art drops in without code changes.
 5. **L1 occluders** — only if v1 placements need them.
-6. *(v2)* walk frames for 3–4 hero characters, then the rest if it's worth it.
+6. _(v2)_ walk frames for 3–4 hero characters, then the rest if it's worth it.
 
 Total art budget estimate: 1 strong evening for the base plate, 2–4 hours for the
 sprite batch once the recipe locks. That is the whole distance between your current

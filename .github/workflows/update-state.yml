@@ -7,10 +7,10 @@ name: Update L3RAIN dashboard state
 on:
   push:
   workflow_run:
-    workflows: ["*"]
+    workflows: ['*']
     types: [completed]
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:

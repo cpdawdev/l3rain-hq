@@ -1,0 +1,478 @@
+{
+  "worldSpriteScale": 0.34,
+  "backdrop": null,
+  "occluders": [],
+  "agents": [
+    {
+      "id": "sung-jin-woo",
+      "sprite": "characters-portraits/sung-jin-woo.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 1920,
+        "y": 1120
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "senku",
+      "sprite": "characters-portraits/senku.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 520,
+        "y": 540
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "edward-elric",
+      "sprite": "characters-portraits/edward-elric.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": false,
+      "flip": false,
+      "station": {
+        "x": 700,
+        "y": 540
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "franky",
+      "sprite": "characters-portraits/franky.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 880,
+        "y": 540
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "sai",
+      "sprite": "characters-portraits/sai.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": false,
+      "flip": false,
+      "station": {
+        "x": 1060,
+        "y": 540
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "kurapika",
+      "sprite": "characters-portraits/kurapika.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 520,
+        "y": 720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "gojo-satoru",
+      "sprite": "characters-portraits/gojo-satoru.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 700,
+        "y": 720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "levi",
+      "sprite": "characters-portraits/levi.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 880,
+        "y": 720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "sanji",
+      "sprite": "characters-portraits/sanji.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": false,
+      "flip": false,
+      "station": {
+        "x": 1060,
+        "y": 720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "kisuke-urahara",
+      "sprite": "characters-portraits/kisuke-urahara.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2180,
+        "y": 520
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "yamato",
+      "sprite": "characters-portraits/yamato.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2360,
+        "y": 520
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "trafalgar-law",
+      "sprite": "characters-portraits/trafalgar-law.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": false,
+      "flip": false,
+      "station": {
+        "x": 2540,
+        "y": 520
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "reborn",
+      "sprite": "characters-portraits/reborn.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2180,
+        "y": 700
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "itachi-uchiha",
+      "sprite": "characters-portraits/itachi-uchiha.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2360,
+        "y": 700
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "nami",
+      "sprite": "characters-portraits/nami.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2540,
+        "y": 700
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "tanjiro-kamado",
+      "sprite": "characters-portraits/tanjiro-kamado.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3100,
+        "y": 560
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "finral-roulacase",
+      "sprite": "characters-portraits/finral-roulacase.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3280,
+        "y": 560
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "askeladd",
+      "sprite": "characters-portraits/askeladd.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3190,
+        "y": 720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "mitsuri-kanroji",
+      "sprite": "characters-portraits/mitsuri-kanroji.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 660,
+        "y": 1560
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "thorfinn",
+      "sprite": "characters-portraits/thorfinn.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 840,
+        "y": 1560
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "nico-robin",
+      "sprite": "characters-portraits/nico-robin.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 660,
+        "y": 1740
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "riza-hawkeye",
+      "sprite": "characters-portraits/riza-hawkeye.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 840,
+        "y": 1740
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "lelouch-lamperouge",
+      "sprite": "characters-portraits/lelouch-lamperouge.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 1720,
+        "y": 1720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "light-yagami",
+      "sprite": "characters-portraits/light-yagami.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": false,
+      "flip": false,
+      "station": {
+        "x": 1900,
+        "y": 1720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "mei-hatsume",
+      "sprite": "characters-portraits/mei-hatsume.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 2080,
+        "y": 1720
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "hange-zoe",
+      "sprite": "characters-portraits/hange-zoe.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 1900,
+        "y": 1880
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "erwin-smith",
+      "sprite": "characters-portraits/erwin-smith.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3040,
+        "y": 1600
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "nanami-kento",
+      "sprite": "characters-portraits/nanami-kento.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3220,
+        "y": 1600
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "armin-arlert",
+      "sprite": "characters-portraits/armin-arlert.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3040,
+        "y": 1780
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    },
+    {
+      "id": "l",
+      "sprite": "characters-portraits/l.png",
+      "anchor": "bottom-center",
+      "scale": 1.0,
+      "mirrorSafe": true,
+      "flip": false,
+      "station": {
+        "x": 3220,
+        "y": 1780
+      },
+      "status": "placeholder",
+      "spriteKind": "portrait-token"
+    }
+  ],
+  "departmentRegions": [
+    {
+      "department": "engineering",
+      "x": 380,
+      "y": 380,
+      "width": 860,
+      "height": 480
+    },
+    {
+      "department": "infra-ops",
+      "x": 2040,
+      "y": 380,
+      "width": 660,
+      "height": 460
+    },
+    {
+      "department": "integrations",
+      "x": 2960,
+      "y": 420,
+      "width": 500,
+      "height": 440
+    },
+    {
+      "department": "orchestrator",
+      "x": 1660,
+      "y": 860,
+      "width": 520,
+      "height": 400
+    },
+    {
+      "department": "customer",
+      "x": 520,
+      "y": 1420,
+      "width": 480,
+      "height": 460
+    },
+    {
+      "department": "marketing-design",
+      "x": 1580,
+      "y": 1580,
+      "width": 660,
+      "height": 440
+    },
+    {
+      "department": "c-suite",
+      "x": 2900,
+      "y": 1460,
+      "width": 480,
+      "height": 460
+    }
+  ]
+}

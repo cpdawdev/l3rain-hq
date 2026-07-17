@@ -1,0 +1,6 @@
+dist/
+legacy/
+pnpm-lock.yaml
+assets/characters-portraits/
+playwright-report/
+test-results/

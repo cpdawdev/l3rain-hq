@@ -90,9 +90,7 @@ Design module boundaries so those can be added without rewriting the renderer.
 {
   "worldSpriteScale": 0.34,
   "backdrop": { "base": "building/base_plate.png", "width": 3840, "height": 2160 },
-  "occluders": [
-    { "file": "building/occluder_boardroom_table.png", "depthY": 1712 }
-  ],
+  "occluders": [{ "file": "building/occluder_boardroom_table.png", "depthY": 1712 }],
   "agents": [
     {
       "id": "sung-jin-woo",
@@ -102,9 +100,9 @@ Design module boundaries so those can be added without rewriting the renderer.
       "mirrorSafe": true,
       "flip": false,
       "station": { "x": 1920, "y": 1080 },
-      "status": "production"
-    }
-  ]
+      "status": "production",
+    },
+  ],
 }
 ```
 
