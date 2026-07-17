@@ -6,6 +6,7 @@ name: Update L3RAIN dashboard state
 
 on:
   push:
+    branches: [main]
   workflow_run:
     workflows: ['*']
     types: [completed]
