@@ -4,3 +4,4 @@ playwright-report/
 test-results/
 *.local
 .DS_Store
+contact-sheet.png

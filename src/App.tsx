@@ -6,6 +6,7 @@ import { StationPicker } from './hud/StationPicker';
 import { Inspector } from './hud/Inspector';
 import { Controls } from './hud/Controls';
 import { Hud } from './hud/Hud';
+import { DiagnosticsPanel } from './hud/DiagnosticsPanel';
 import type { HqEngine } from './engine/HqEngine';
 import type { HqData } from './data/provider';
 import { selectProvider } from './data/liveProvider';
@@ -87,6 +88,9 @@ export function App() {
         <h1 className="text-xs font-semibold tracking-[0.3em] text-hq-cyan">L3RAIN HEADQUARTERS</h1>
       </header>
 
+      {/* e2e beacon: present once the engine is mounted AND wired to React state */}
+      {engine !== null && <div data-testid="engine-ready" className="hidden" />}
+
       <Controls />
 
       <Hud data={data} />
@@ -103,21 +107,7 @@ export function App() {
         <StationPicker engine={engine} manifest={validation.manifest} />
       )}
 
-      {devMode && issues.length > 0 && (
-        <div
-          className="absolute right-3 bottom-3 z-10 max-h-40 w-96 overflow-auto rounded-md border border-hq-border bg-hq-panel/90 p-2 text-[11px] text-hq-amber"
-          data-testid="manifest-issues"
-        >
-          <p className="mb-1 font-semibold tracking-widest text-hq-text-dim">
-            DIAGNOSTICS ({issues.length})
-          </p>
-          <ul className="space-y-0.5">
-            {issues.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {devMode && <DiagnosticsPanel engine={engine} issues={issues} />}
     </div>
   );
 }

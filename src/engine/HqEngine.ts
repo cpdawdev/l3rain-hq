@@ -6,6 +6,7 @@ import { buildAgentLayer, type AgentVisual } from './agents';
 import { LabelLayer } from './labels';
 import { TintLayer } from './tint';
 import { EffectsLayer } from './effects';
+import { DiagnosticsLayer } from './diagnostics';
 import { Graphics } from 'pixi.js';
 import type { Department } from '../data/roster';
 import type { AgentStatus, DepartmentStatus } from '../data/provider';
@@ -47,6 +48,8 @@ export class HqEngine {
   tint!: TintLayer;
   /** ambient effects layer (created in create()) */
   effects!: EffectsLayer;
+  /** dev diagnostics overlay (created in create()) */
+  diagnostics!: DiagnosticsLayer;
   /** latest per-agent activity (effects layer + inspector read this) */
   readonly agentActivity = new Map<string, AgentStatus>();
 
@@ -144,8 +147,10 @@ export class HqEngine {
       worldToScreen: (wx, wy) => engine.worldToScreen(wx, wy),
       fitScale: () => engine.camera.fitScale(),
     });
+    engine.diagnostics = new DiagnosticsLayer(engine.overlay, engine.agents);
     engine.camera.onChange((view) => {
       engine.labels.sync(view);
+      engine.diagnostics.sync();
     });
     engine.labels.sync(engine.camera.getView());
 
@@ -164,6 +169,13 @@ export class HqEngine {
       agentCount: engine.agents.size,
       labelCount: () => engine.labels.count,
       effectsAnimating: () => engine.effects.animating,
+      cameraView: () => engine.camera.getView(),
+      agentHitPos: (id: string) => {
+        const v = engine.agents.get(id);
+        if (!v) return null;
+        return engine.worldToScreen(v.entry.station.x, v.entry.station.y - v.height * 0.55);
+      },
+      fps: () => engine.app.ticker.FPS,
       errors: engine.errors,
     };
     return engine;

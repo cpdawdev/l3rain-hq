@@ -20,14 +20,18 @@ export function WorldCanvas({ manifest, onEngine }: WorldCanvasProps) {
     let engine: HqEngine | null = null;
     let cancelled = false;
 
-    void HqEngine.create(host, manifest).then((created) => {
-      if (cancelled) {
-        created.destroy();
-        return;
-      }
-      engine = created;
-      onEngine?.(created);
-    });
+    void HqEngine.create(host, manifest)
+      .then((created) => {
+        if (cancelled) {
+          created.destroy();
+          return;
+        }
+        engine = created;
+        onEngine?.(created);
+      })
+      .catch((err: unknown) => {
+        console.error('engine create failed:', err);
+      });
 
     return () => {
       cancelled = true;
