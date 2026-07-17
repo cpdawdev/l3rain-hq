@@ -2,6 +2,7 @@
 interface L3rainDebug {
   agentCount: number;
   labelCount: () => number;
+  effectsAnimating: () => boolean;
   errors: string[];
 }
 

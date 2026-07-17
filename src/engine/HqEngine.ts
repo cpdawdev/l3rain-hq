@@ -5,6 +5,7 @@ import { createBackdrop } from './backdrop';
 import { buildAgentLayer, type AgentVisual } from './agents';
 import { LabelLayer } from './labels';
 import { TintLayer } from './tint';
+import { EffectsLayer } from './effects';
 import { Graphics } from 'pixi.js';
 import type { Department } from '../data/roster';
 import type { AgentStatus, DepartmentStatus } from '../data/provider';
@@ -44,6 +45,8 @@ export class HqEngine {
   labels!: LabelLayer;
   /** department status tint overlays (created in create()) */
   tint!: TintLayer;
+  /** ambient effects layer (created in create()) */
+  effects!: EffectsLayer;
   /** latest per-agent activity (effects layer + inspector read this) */
   readonly agentActivity = new Map<string, AgentStatus>();
 
@@ -146,9 +149,21 @@ export class HqEngine {
     });
     engine.labels.sync(engine.camera.getView());
 
+    engine.effects = new EffectsLayer(engine.layers.fx, {
+      worldWidth: engine.worldWidth,
+      worldHeight: engine.worldHeight,
+      regions: manifest.departmentRegions,
+      agents: engine.agents,
+      orchestratorStation: engine.agents.get('sung-jin-woo')?.entry.station ?? null,
+      getDepartmentStatus: (d) => engine.tint.statusOf(d),
+      getAgentActivity: (id) => engine.agentActivity.get(id),
+    });
+    app.ticker.add(engine.effects.update);
+
     window.__l3rainDebug = {
       agentCount: engine.agents.size,
       labelCount: () => engine.labels.count,
+      effectsAnimating: () => engine.effects.animating,
       errors: engine.errors,
     };
     return engine;
@@ -226,6 +241,7 @@ export class HqEngine {
     this.host.removeEventListener('click', this.onHostClick);
     this.resizeObserver.disconnect();
     this.camera.destroy();
+    this.effects.destroy();
     this.app.destroy(true, { children: true, texture: false });
   }
 

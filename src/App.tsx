@@ -64,6 +64,13 @@ export function App() {
     engine.labels.setSizeFactor(LABEL_SIZE_FACTOR[ui.labelSize]);
   }, [engine, ui.labelMode, ui.labelSize]);
 
+  // store → engine: motion preferences
+  useEffect(() => {
+    if (!engine) return;
+    engine.effects.setReducedMotion(ui.reducedMotion);
+    engine.effects.setPaused(ui.paused);
+  }, [engine, ui.reducedMotion, ui.paused]);
+
   const issues = [...(validation?.errors ?? []), ...(engine?.errors ?? [])];
 
   return (
