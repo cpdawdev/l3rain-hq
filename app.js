@@ -230,8 +230,9 @@ class L3RainHQ {
       clock: $('hq-clock'),
       capBanner: $('l3-cap-banner'), capMsg: $('hq-cap-msg'),
       phases: $('hq-phases'),
-      usageBox: $('l3-usage'), usagePct: $('hq-usage-pct'), usageBar: $('hq-usage-bar'),
+      usageBox: $('l3-usage'), usagePct: $('hq-usage-pct'), usageMode: $('hq-usage-mode'), usageBar: $('hq-usage-bar'),
       usageStart: $('hq-usage-start'), usageReset: $('hq-usage-reset'), usageCount: $('hq-usage-count'),
+      usageWeekly: $('hq-usage-weekly'),
       donut: $('hq-donut'), donutInner: $('hq-donut-inner'),
       depts: $('hq-depts'), feed: $('hq-feed'),
       actTotal: $('hq-act-total'), actWork: $('hq-act-work'),
@@ -279,25 +280,36 @@ class L3RainHQ {
       row.querySelector('.bar-fill').style.width = Math.round(p.pct) + '%';
     });
 
-    // 5-hour usage bar (recomputed every second so the countdown ticks)
+    // 5-hour usage bar (recomputed every second so the countdown ticks).
+    // The bar + big number show REAL quota consumed (usedPct) when a live capture
+    // exists; otherwise they fall back to time-elapsed, labelled honestly so the
+    // meter is never mislabeled ("used" = real quota, "elapsed" = time in window).
     const capped = !!this.capActive, usg = this.computeUsage();
-    let uLabel = '—', uW = '0%', uStart = '—', uReset = '—', uCount = '—',
+    let uLabel = '—', uMode = '', uW = '0%', uStart = '—', uReset = '—', uCount = '—',
         uColor = '#67e8f9', uBar = 'linear-gradient(90deg,#22d3ee,#3b82f6)', uBorder = '#1f3a63';
     if (usg.has) {
       const pctR = Math.round(usg.pct);
       uLabel = pctR + '%'; uW = pctR + '%';
+      uMode = usg.mode === 'used' ? 'used' : 'elapsed';
       uStart = this.fmtClock(usg.start); uReset = this.fmtClock(usg.reset); uCount = this.fmtDur(usg.remaining);
       if (pctR >= 95 || capped) { uColor = '#ff6b6b'; uBar = 'linear-gradient(90deg,#f87171,#ef4444)'; uBorder = '#7f1d1d'; }
       else if (pctR >= 85) { uColor = '#f5b301'; uBar = 'linear-gradient(90deg,#fbbf24,#f59e0b)'; uBorder = '#78591c'; }
     } else if (capped) {
-      uLabel = 'CAP'; uW = '100%'; uColor = '#ff6b6b'; uBar = 'linear-gradient(90deg,#f87171,#ef4444)'; uBorder = '#7f1d1d';
+      uLabel = 'CAP'; uMode = ''; uW = '100%'; uColor = '#ff6b6b'; uBar = 'linear-gradient(90deg,#f87171,#ef4444)'; uBorder = '#7f1d1d';
     }
     el.usagePct.textContent = uLabel; el.usagePct.style.color = uColor;
+    if (el.usageMode) el.usageMode.textContent = uMode;
     el.usageBar.style.width = uW; el.usageBar.style.background = uBar;
     el.usageBox.style.borderColor = uBorder;
     el.usageStart.textContent = 'Start ' + uStart;
     el.usageReset.textContent = 'Reset ' + uReset;
     el.usageCount.textContent = uCount; el.usageCount.style.color = uColor;
+    // optional 7-day line: only when a real weekly quota % is present
+    if (el.usageWeekly) {
+      const wk = usg.has ? usg.weekly : null;
+      if (Number.isFinite(wk)) { el.usageWeekly.textContent = '7-day ' + Math.round(wk) + '%'; el.usageWeekly.style.display = ''; }
+      else { el.usageWeekly.textContent = ''; el.usageWeekly.style.display = 'none'; }
+    }
 
     // cap banner
     el.capBanner.classList.toggle('on', capped);
@@ -402,8 +414,12 @@ class L3RainHQ {
 
   computeUsage() {
     const u = this.usage || {};
+    // Wire contract (l3rain #139): the real numbers live under usage.fiveHour, but
+    // we stay tolerant of the older top-level aliases so nothing breaks in between.
+    const fh = (u.fiveHour && typeof u.fiveHour === 'object') ? u.fiveHour : {};
     // Prefer an explicit 5-hour reset; fall back to the generic resetIso.
-    const resetIso = u.fiveHourResetIso || u.window5hResetIso || u.resetIso || u.reset || u.resetAt || u.windowResetIso || null;
+    const resetIso = fh.resetIso || u.fiveHourResetIso || u.window5hResetIso ||
+      u.resetIso || u.reset || u.resetAt || u.windowResetIso || null;
     if (!resetIso) return { has: false };
     const reset = Date.parse(resetIso);
     if (isNaN(reset)) return { has: false };
@@ -411,13 +427,33 @@ class L3RainHQ {
     // A 5-hour window's reset is at most 5h away; anything further (e.g. a weekly
     // reset arriving in this field) is not a 5-hour boundary → don't fake a bar.
     if (reset - now > this.FIVE_H_MS + 60000) return { has: false };
-    const startIso = u.windowStartIso || u.startIso || u.windowStart || u.start || null;
+    const startIso = fh.startIso || fh.windowStartIso || u.windowStartIso || u.startIso || u.windowStart || u.start || null;
     let start = startIso ? Date.parse(startIso) : NaN;
     if (isNaN(start)) start = reset - this.FIVE_H_MS;   // 5-hour window → derive from reset
     const span = Math.max(1, reset - start);
-    const pct = Math.max(0, Math.min(100, (now - start) / span * 100));
-    return { has: true, pct, remaining: Math.max(0, reset - now), start, reset };
+    // Time elapsed in the window: use the authoritative wire value when present,
+    // else derive it client-side so the bar still moves between polls.
+    const rawElapsed = this.num(fh.pctElapsed);
+    const pctElapsed = Number.isFinite(rawElapsed)
+      ? Math.max(0, Math.min(100, rawElapsed))
+      : Math.max(0, Math.min(100, (now - start) / span * 100));
+    // REAL quota consumed 0–100: present only when a live capture exists (nested
+    // usedPct, or a reasonable top-level alias). Absent/null → time-elapsed fallback.
+    const rawUsed = this.num(fh.usedPct != null ? fh.usedPct : (u.usedPct != null ? u.usedPct : u.fiveHourUsedPct));
+    const hasReal = Number.isFinite(rawUsed);
+    const usedPct = hasReal ? Math.max(0, Math.min(100, rawUsed)) : null;
+    const pct = hasReal ? usedPct : pctElapsed;   // meter value
+    // Optional 7-day window quota (usage.weekly.usedPct), if a real number is given.
+    const wk = (u.weekly && typeof u.weekly === 'object') ? this.num(u.weekly.usedPct) : NaN;
+    const weekly = Number.isFinite(wk) ? Math.max(0, Math.min(100, wk)) : null;
+    return {
+      has: true, pct, usedPct, pctElapsed,
+      mode: hasReal ? 'used' : 'elapsed',
+      remaining: Math.max(0, reset - now), start, reset, weekly
+    };
   }
+  // Coerce to a finite number or NaN (rejects null/'' /booleans).
+  num(v) { return (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) ? Number(v) : NaN; }
   fmtClock(ms) { return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
   fmtDur(ms) {
     const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;

@@ -116,11 +116,14 @@ a:hover { color: #a5f3fc; }
 /* 5-hour usage */
 #l3-usage { display: flex; flex-direction: column; gap: 5px; border: 1px solid #1f3a63; border-radius: 10px; padding: 8px 10px; background: #0c1526; }
 .usage-head { display: flex; justify-content: space-between; color: #b9d2f2; font-size: 10.5px; letter-spacing: 1px; }
+.usage-pct-wrap { display: inline-flex; align-items: baseline; gap: 4px; }
 #hq-usage-pct { color: #67e8f9; }
+.usage-mode { color: #7d94b8; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; }
 .usage-times { display: flex; justify-content: space-between; font-size: 9px; color: #7d94b8; letter-spacing: .5px; }
 .usage-reset-row { display: flex; justify-content: space-between; font-size: 10px; }
 .usage-reset-row .k { color: #7d94b8; }
 #hq-usage-count { color: #67e8f9; font-weight: 600; }
+#hq-usage-weekly { font-size: 9px; color: #7d94b8; letter-spacing: .5px; text-align: right; }
 
 /* overall completion donut */
 .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 9px 0; border-top: 1px solid #1c3050; border-bottom: 1px solid #1c3050; }
@@ -227,10 +230,11 @@ a:hover { color: #a5f3fc; }
         <div id="hq-phases"><!-- phase rows rendered by app.js --></div>
 
         <div id="l3-usage">
-          <div class="usage-head"><span>5-HOUR USAGE</span><span id="hq-usage-pct">—</span></div>
+          <div class="usage-head"><span>5-HOUR USAGE</span><span class="usage-pct-wrap"><span id="hq-usage-pct">—</span><span id="hq-usage-mode" class="usage-mode"></span></span></div>
           <div class="bar"><div class="bar-fill" id="hq-usage-bar"></div></div>
           <div class="usage-times"><span id="hq-usage-start">Start —</span><span id="hq-usage-reset">Reset —</span></div>
           <div class="usage-reset-row"><span class="k">Resets in</span><span id="hq-usage-count">—</span></div>
+          <div id="hq-usage-weekly" style="display:none"></div>
         </div>
 
         <div class="donut-wrap">
