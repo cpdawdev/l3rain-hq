@@ -3,6 +3,14 @@ import type { HqData, DepartmentStatus } from '../data/provider';
 import { DEPARTMENTS, DEPARTMENT_LABELS } from '../data/roster';
 import { uiStore, useUiState } from '../state/store';
 import { formatCountdown, usageMeter } from './usageMeter';
+import { GATE_CHIP, PHASE_GATE_SUMMARY, gateForIndex, type PhaseOwner } from './phaseGates';
+
+const GATE_CHIP_CLASS: Record<PhaseOwner, string> = {
+  // amber/gold "your move" — a tier-3 act only Joseph can trigger
+  joseph: 'border-hq-amber/45 bg-hq-amber/15 text-hq-amber',
+  // subtle "agents" — engineering depth, deliberately quiet
+  agents: 'border-hq-text-dim/30 bg-hq-text-dim/10 text-hq-text-dim',
+};
 
 const STATUS_DOT: Record<DepartmentStatus, string> = {
   working: '#4ade80',
@@ -32,28 +40,59 @@ function Panel({
   );
 }
 
-function PhaseBars({ data }: { data: HqData }) {
+export function PhaseBars({ data }: { data: HqData }) {
   return (
     <Panel title="PHASES" testId="hud-phases">
-      <ul className="space-y-2">
-        {data.phases.map((p) => (
-          <li key={p.name}>
-            <div className="mb-0.5 flex justify-between text-[10px]">
-              <span className="text-hq-text">{p.name}</span>
-              <span className="text-hq-cyan">{p.pct}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-hq-panel-2">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${String(Math.max(0, Math.min(100, p.pct)))}%`,
-                  background: 'linear-gradient(90deg,#22d3ee,#3b82f6)',
-                }}
-              />
-            </div>
-          </li>
-        ))}
+      <ul className="space-y-2.5">
+        {data.phases.map((p, i) => {
+          const gate = gateForIndex(i);
+          const chip = gate ? GATE_CHIP[gate.owner] : null;
+          return (
+            <li key={p.name}>
+              <div className="mb-0.5 flex justify-between text-[10px]">
+                <span className="text-hq-text">{p.name}</span>
+                <span className="text-hq-cyan">{p.pct}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-hq-panel-2">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${String(Math.max(0, Math.min(100, p.pct)))}%`,
+                    background: 'linear-gradient(90deg,#22d3ee,#3b82f6)',
+                  }}
+                />
+              </div>
+              {gate && chip ? (
+                <div
+                  className="mt-1 flex flex-wrap items-center gap-1.5"
+                  title={
+                    gate.owner === 'joseph'
+                      ? `Waiting on Joseph — ${gate.act}`
+                      : `Agents building — ${gate.act}`
+                  }
+                >
+                  <span
+                    data-testid={`phase-chip-${String(i)}`}
+                    data-owner={gate.owner}
+                    className={`inline-flex shrink-0 items-center rounded-full border px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-wide ${GATE_CHIP_CLASS[gate.owner]}`}
+                  >
+                    {chip.label}
+                  </span>
+                  <span className="min-w-0 flex-1 text-[8.5px] leading-tight text-hq-text-dim">
+                    {gate.act}
+                  </span>
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
       </ul>
+      <p
+        data-testid="hud-phase-summary"
+        className="mt-2.5 border-t border-hq-border pt-2 text-[9px] leading-snug text-hq-text-dim"
+      >
+        {PHASE_GATE_SUMMARY}
+      </p>
     </Panel>
   );
 }
