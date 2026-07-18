@@ -21,9 +21,17 @@ export interface FeedItem {
 
 export interface UsageInfo {
   capActive: boolean;
-  /** 0..100 elapsed within the current 5-hour window, if known. */
+  /** REAL quota consumed 0..100 in the 5-hour window — present only when a live
+   *  capture exists (usage.fiveHour.usedPct); null otherwise. */
+  fiveHourUsedPct: number | null;
+  /** 0..100 time elapsed within the current 5-hour window, if known. */
   fiveHourPctElapsed: number | null;
+  /** ISO timestamp the 5-hour window resets at, if known. */
   resetIso: string | null;
+  /** Seconds until the 5-hour window resets — a redundant hint to resetIso. */
+  secsToReset: number | null;
+  /** REAL quota consumed 0..100 in the 7-day window, when known (else null). */
+  weeklyUsedPct: number | null;
 }
 
 /** One immutable snapshot of everything the HUD + engine consume. */

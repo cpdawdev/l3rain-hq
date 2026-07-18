@@ -34,6 +34,8 @@ export function buildMockSnapshot(now: () => Date = () => new Date()): HqData {
     agentActivity[agent.id] = agentStatusFromDepartment(MOCK_DEPARTMENTS[agent.department]);
   }
   const phases = MOCK_PHASES.map((p) => ({ ...p }));
+  // Reset ~1h34m out so the mock/fallback view exercises the live countdown too.
+  const resetIso = new Date(now().getTime() + (94 * 60 + 0) * 1000).toISOString();
   return {
     source: 'mock',
     updatedAt: now().toISOString(),
@@ -42,7 +44,14 @@ export function buildMockSnapshot(now: () => Date = () => new Date()): HqData {
     departments: { ...MOCK_DEPARTMENTS },
     agentActivity,
     activityCounts: countActivity(agentActivity),
-    usage: { capActive: false, fiveHourPctElapsed: 42, resetIso: null },
+    usage: {
+      capActive: false,
+      fiveHourUsedPct: 27,
+      fiveHourPctElapsed: 42,
+      resetIso,
+      secsToReset: 94 * 60,
+      weeklyUsedPct: 41,
+    },
     feed: [
       { k: 'Source', v: 'mock data', c: '#facc15' },
       { k: 'Phases', v: `${String(MOCK_PHASES.length)} tracked`, c: '#67e8f9' },

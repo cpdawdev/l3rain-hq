@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import type { HqData, DepartmentStatus } from '../data/provider';
 import { DEPARTMENTS, DEPARTMENT_LABELS } from '../data/roster';
 import { uiStore, useUiState } from '../state/store';
+import { formatCountdown, usageMeter } from './usageMeter';
 
 const STATUS_DOT: Record<DepartmentStatus, string> = {
   working: '#4ade80',
@@ -151,23 +153,59 @@ function ActivityCounts({ data }: { data: HqData }) {
   );
 }
 
+/** Re-render once a second so the reset countdown ticks live between polls. */
+function useSecondTick(): number {
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+    return () => {
+      clearInterval(id);
+    };
+  }, []);
+  return nowMs;
+}
+
 function UsageStrip({ data }: { data: HqData }) {
-  if (!data.usage || data.usage.fiveHourPctElapsed === null) return null;
-  const pct = Math.max(0, Math.min(100, data.usage.fiveHourPctElapsed));
+  const nowMs = useSecondTick();
+  const meter = usageMeter(data.usage, nowMs);
+  if (!meter) return null;
+  // 'used' = REAL quota consumed; 'elapsed' = time in window (honest fallback).
+  const accent = meter.capActive ? '#f87171' : '#67e8f9';
+  const barBg = meter.capActive ? '#f87171' : 'linear-gradient(90deg,#22d3ee,#3b82f6)';
   return (
-    <Panel title="5-HOUR USAGE WINDOW" testId="hud-usage">
+    <Panel title="5-HOUR USAGE" testId="hud-usage">
+      <div className="mb-1 flex items-baseline justify-between">
+        <span className="text-base font-semibold" style={{ color: accent }} data-testid="usage-pct">
+          {meter.pct}%
+        </span>
+        <span
+          className="text-[9px] uppercase tracking-widest text-hq-text-dim"
+          data-testid="usage-mode"
+        >
+          {meter.mode}
+        </span>
+      </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-hq-panel-2">
         <div
           className="h-full rounded-full"
-          style={{
-            width: `${String(pct)}%`,
-            background: data.usage.capActive ? '#f87171' : 'linear-gradient(90deg,#22d3ee,#3b82f6)',
-          }}
+          style={{ width: `${String(meter.pct)}%`, background: barBg }}
         />
       </div>
-      <p className="mt-1 text-[10px] text-hq-text-dim">
-        {pct}% elapsed{data.usage.capActive ? ' · CAP ACTIVE' : ''}
-      </p>
+      {meter.remainingMs !== null ? (
+        <p className="mt-1 text-[10px] text-hq-text-dim" data-testid="usage-reset">
+          resets in {formatCountdown(meter.remainingMs)}
+          {meter.capActive ? ' · CAP ACTIVE' : ''}
+        </p>
+      ) : (
+        meter.capActive && <p className="mt-1 text-[10px] text-hq-text-dim">CAP ACTIVE</p>
+      )}
+      {meter.weeklyPct !== null && (
+        <p className="mt-0.5 text-[9px] text-hq-text-dim" data-testid="usage-weekly">
+          7-day {meter.weeklyPct}%
+        </p>
+      )}
     </Panel>
   );
 }

@@ -96,10 +96,49 @@ describe('LiveStatusProvider', () => {
     expect(snap.departments['c-suite']).toBe('waiting');
     expect(snap.departments['marketing-design']).toBe('idle');
     expect(snap.usage?.fiveHourPctElapsed).toBe(16);
+    // no real capture in this fixture → usedPct stays null (elapsed fallback)
+    expect(snap.usage?.fiveHourUsedPct).toBeNull();
+    expect(snap.usage?.secsToReset).toBe(15090);
+    expect(snap.usage?.resetIso).toBe('2026-07-17T06:00:00Z');
+    expect(snap.usage?.weeklyUsedPct).toBeNull();
     // engineering agents inherit 'working'
     for (const a of ROSTER.filter((r) => r.department === 'engineering')) {
       expect(snap.agentActivity[a.id]).toBe('working');
     }
+  });
+
+  it('maps REAL quota (fiveHour.usedPct) + nested resetIso + weekly when present', () => {
+    const snap = mapStatusJson(
+      {
+        ...LIVE_FIXTURE,
+        usage: {
+          capActive: false,
+          resetIso: '2026-07-18T99:99:99Z', // top-level ignored in favour of nested
+          fiveHour: {
+            usedPct: 27,
+            pctElapsed: 68,
+            resetIso: '2026-07-18T03:34:00Z',
+            secsToReset: 5640,
+            usedPctSource: 'real',
+          },
+          weekly: { usedPct: 41, resetIso: '2026-07-21T00:00:00Z' },
+        },
+      },
+      FIXED_NOW,
+    );
+    expect(snap.usage?.fiveHourUsedPct).toBe(27);
+    expect(snap.usage?.fiveHourPctElapsed).toBe(68);
+    expect(snap.usage?.resetIso).toBe('2026-07-18T03:34:00Z'); // nested wins
+    expect(snap.usage?.secsToReset).toBe(5640);
+    expect(snap.usage?.weeklyUsedPct).toBe(41);
+  });
+
+  it('tolerates weekly = null (contract allows null | undefined)', () => {
+    const snap = mapStatusJson(
+      { ...LIVE_FIXTURE, usage: { ...LIVE_FIXTURE.usage, weekly: null } },
+      FIXED_NOW,
+    );
+    expect(snap.usage?.weeklyUsedPct).toBeNull();
   });
 
   it('coerces unknown department states to idle and tolerates extra fields', () => {

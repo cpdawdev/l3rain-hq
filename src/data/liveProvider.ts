@@ -26,7 +26,24 @@ const StatusJsonSchema = z.object({
     .object({
       capActive: z.boolean().optional(),
       resetIso: z.string().nullable().optional(),
-      fiveHour: z.object({ pctElapsed: z.number().optional() }).partial().optional(),
+      fiveHour: z
+        .object({
+          usedPct: z.number().nullable().optional(),
+          pctElapsed: z.number().optional(),
+          resetIso: z.string().nullable().optional(),
+          secsToReset: z.number().nullable().optional(),
+          usedPctSource: z.string().nullable().optional(),
+        })
+        .partial()
+        .optional(),
+      weekly: z
+        .object({
+          usedPct: z.number().nullable().optional(),
+          resetIso: z.string().nullable().optional(),
+        })
+        .partial()
+        .nullable()
+        .optional(),
     })
     .partial()
     .optional(),
@@ -48,6 +65,11 @@ function coerceStatus(value: string): DepartmentStatus {
   return (DEPARTMENT_STATUSES as readonly string[]).includes(value)
     ? (value as DepartmentStatus)
     : 'idle';
+}
+
+/** Finite number → itself; null/undefined/NaN → null. */
+function numOrNull(value: number | null | undefined): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 /** Pure mapping from a raw /status.json body to HqData (unit-testable). */
@@ -77,8 +99,14 @@ export function mapStatusJson(raw: unknown, now: () => Date = () => new Date()):
     activityCounts: countActivity(agentActivity),
     usage: {
       capActive: parsed.usage?.capActive ?? false,
-      fiveHourPctElapsed: parsed.usage?.fiveHour?.pctElapsed ?? null,
-      resetIso: parsed.usage?.resetIso ?? null,
+      // REAL quota consumed lives under fiveHour.usedPct (present only for real
+      // captures); the older top-level shapes simply leave it null.
+      fiveHourUsedPct: numOrNull(parsed.usage?.fiveHour?.usedPct),
+      fiveHourPctElapsed: numOrNull(parsed.usage?.fiveHour?.pctElapsed),
+      // Prefer the nested 5-hour reset; fall back to the generic top-level one.
+      resetIso: parsed.usage?.fiveHour?.resetIso ?? parsed.usage?.resetIso ?? null,
+      secsToReset: numOrNull(parsed.usage?.fiveHour?.secsToReset),
+      weeklyUsedPct: numOrNull(parsed.usage?.weekly?.usedPct),
     },
     feed: parsed.feed,
   };
