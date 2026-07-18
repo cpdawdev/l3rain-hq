@@ -133,6 +133,83 @@ Re-roll outliers immediately; do not "fix it later."
 
 ---
 
+## PART 1.7 — WALK / DIRECTION SHEETS (final animated art)
+
+Until this art lands, the engine renders **animated chibi paper-dolls**: the face
+portrait is the head, the body is procedural cel-shaded parts (per-agent palette
+sampled from the portrait), with a real walk cycle and four facings. This section
+is the drop-in contract that replaces those paper-dolls with baked art — **zero
+code changes** once the files + manifest entry exist (`spriteKind:
+"directional-sheet"`, Zod-validated by `DirectionalSheetSchema`).
+
+### 1.7.1 Deliverable — one horizontal strip per direction
+
+```
+assets/characters/{agent-id}_se.png   ← front, facing screen-right (REQUIRED)
+assets/characters/{agent-id}_ne.png   ← back,  facing screen-right (REQUIRED)
+assets/characters/{agent-id}_sw.png   ← front, facing screen-left  (optional)
+assets/characters/{agent-id}_nw.png   ← back,  facing screen-left  (optional)
+```
+
+- **SW / NW are optional.** If omitted, the engine horizontally mirrors SE / NE —
+  the same `mirrorSafe` caveat as 1.4 applies (asymmetric designs: ship the extra
+  two strips). NE/NW are the **back of the head** (hair, no face).
+- The four facings map to the isometric camera exactly like the chibi: SE/SW show
+  the face; NE/NW show the back.
+
+### 1.7.2 Strip layout — `[idle frames…][walk frames…]`
+
+Each direction file is a **single horizontal strip**, all frames the same
+`frameSize` (width × height), transparent background (delivered after cutout, 1.5):
+
+```
+frame:   0        1        2        3        4
+        [idle]   [walk-A][walk-B][walk-C][walk-D]
+```
+
+- **idle** = 1 frame minimum (a 2-frame breathing loop is nicer). `states.idle.frames`.
+- **walk** = **4 frames**, a standard contact → passing → contact → passing cycle
+  (limb swing + a subtle vertical bob). `states.walk.frames`.
+- Idle frames come first; walk frames immediately after. The engine slices left to
+  right at `frameSize.width` (see `sliceFrames`), idle then walk.
+
+### 1.7.3 Canvas, scale, baseline — same rules as 1.3
+
+- Every frame uses the **same canvas, scale and baseline** as the idle sprites
+  (1.3): character 80–88% of frame height, **feet on the y = 92% baseline**, foot
+  contact = **bottom-center** (the engine anchors there and depth-sorts by foot Y).
+- Keep the foot contact point **rock-steady** across all frames of a walk cycle —
+  the bob belongs in the body, not the feet, or the agent will skate.
+- Per-agent `scale` in the manifest still applies (Reborn ≈ 0.55, Franky ≈ 1.15).
+
+### 1.7.4 Manifest entry (drops in with zero code changes)
+
+```jsonc
+{
+  "id": "sung-jin-woo",
+  "sprite": "characters-portraits/sung-jin-woo.png", // still the head fallback
+  "station": { "x": 752, "y": 388 },
+  "scale": 1.0,
+  "status": "production",
+  "spriteKind": "directional-sheet",
+  "directionalSheet": {
+    "directions": {
+      "se": "characters/sung-jin-woo_se.png",
+      "ne": "characters/sung-jin-woo_ne.png"
+      // "sw"/"nw" optional → mirrored from se/ne
+    },
+    "states": { "idle": { "frames": 2 }, "walk": { "frames": 4 } },
+    "frameSize": { "width": 256, "height": 384 }
+  }
+}
+```
+
+The engine preloads the strips, builds one `AnimatedSprite` per (direction, state),
+and the simulation drives which one plays from the agent's live velocity/facing —
+identical pose contract to the interim chibi.
+
+---
+
 ## PART 2 — BUILDING BACKDROP (2–3 painted layers)
 
 ### 2.1 Layer model

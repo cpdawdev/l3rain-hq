@@ -14,8 +14,34 @@ Master spec: `docs/l3rain-hq-v2-claude-code-prompt.md` · Art contract: `docs/l3
 | 6   | Ambient effects; reduced motion; pause                                                 | done   |
 | 7   | Diagnostics, helper scripts, contact sheet, Playwright suite, docs complete            | done   |
 
-Explicitly OUT (per spec, interfaces only): locomotion/pathfinding, routines/state
-machines, Durable Objects/WebSockets/D1/R2/Queues, audio.
+Still OUT: Durable Objects/WebSockets/D1/R2/Queues, audio.
+
+## V2.1 — mobile + living office (owner's new requirements)
+
+Locomotion/routines were originally out of scope; the owner's V2.1 requirements
+bring them in. All three workstreams are complete and green at every commit.
+
+| #   | Workstream                                                                                   | Status |
+| --- | -------------------------------------------------------------------------------------------- | ------ |
+| M1  | Mobile touch input: pointer-cache pan/pinch(midpoint)/double-tap; HUD collapses to a drawer  | done   |
+| M2  | Living simulation: waypoint graph + pathfinding, status-driven routines, delegation, slimes, bubbles, honest all-paused | done   |
+| M3  | Animated chibi paper-dolls (portrait head + cel-shaded body, walk cycle, 4 facings) + directional-sheet schema | done   |
+
+- `src/sim/` — the living office. `waypoints.ts` (Dijkstra graph, pure),
+  `facing.ts` (facing-from-velocity + anim state, pure), `behavior.ts`
+  (status-driven decision policy, pure), `Simulation.ts` (runtime: routines,
+  movement, delegation beams, slimes, status bubbles, honest all-paused on cap;
+  reduced motion holds at stations, pause freezes). The walkable graph lives in
+  the manifest (`waypoints`), Zod-validated + connectivity-checked, editable via
+  the station picker.
+- `src/engine/chibi.ts` — animated chibi paper-dolls (interim, portrait = head)
+  and `DirectionalDoll` (the future baked `directional-sheet` art), behind one
+  `Doll` pose contract. Palette sampled per-agent from the portrait.
+- Labels + inspector hit-test follow the live foot point; depth is continuously
+  sorted by foot Y as agents walk.
+
+Explicitly OUT of the original v1 spec (per spec, interfaces only): locomotion/pathfinding,
+routines/state machines — now delivered in V2.1 above.
 
 ## Architecture
 

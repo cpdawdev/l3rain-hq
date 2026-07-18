@@ -26,6 +26,9 @@ export default defineConfig({
         ...devices['iPhone 13'],
         deviceScaleFactor: 1,
         browserName: 'chromium',
+        // gesture tests are camera-only; freezing the sim/effects keeps the main
+        // thread free so synthetic-touch dispatch stays fast (tap-timing).
+        contextOptions: { reducedMotion: 'reduce' },
       },
     },
   ],

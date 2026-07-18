@@ -48,6 +48,59 @@ describe('manifest schema', () => {
     expect(parsed.agents[0]?.mirrorSafe).toBe(true);
   });
 
+  it('accepts a directional-sheet agent (future baked art) with sw/nw optional', () => {
+    const parsed = ManifestSchema.safeParse({
+      worldSpriteScale: 1,
+      backdrop: null,
+      agents: [
+        {
+          id: 'levi',
+          sprite: 'characters/levi_idle_se.png',
+          station: { x: 0, y: 0 },
+          status: 'production',
+          spriteKind: 'directional-sheet',
+          directionalSheet: {
+            directions: { se: 'characters/levi_se.png', ne: 'characters/levi_ne.png' },
+            states: { idle: { frames: 1 }, walk: { frames: 4 } },
+            frameSize: { width: 128, height: 192 },
+          },
+        },
+      ],
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const sheet = parsed.data.agents[0]?.directionalSheet;
+      expect(sheet?.directions.sw).toBeUndefined();
+      expect(sheet?.states.walk.frames).toBe(4);
+    }
+  });
+
+  it('rejects a directional-sheet with a non-positive frame count', () => {
+    const result = ManifestSchema.safeParse({
+      worldSpriteScale: 1,
+      backdrop: null,
+      agents: [
+        {
+          id: 'levi',
+          sprite: 'x.png',
+          station: { x: 0, y: 0 },
+          spriteKind: 'directional-sheet',
+          directionalSheet: {
+            directions: { se: 'a.png', ne: 'b.png' },
+            states: { idle: { frames: 0 }, walk: { frames: 4 } },
+            frameSize: { width: 128, height: 192 },
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('defaults waypoints to an empty graph', () => {
+    const parsed = ManifestSchema.parse({ worldSpriteScale: 1, backdrop: null, agents: [] });
+    expect(parsed.waypoints).toEqual({ nodes: [], edges: [] });
+  });
+
   it('rejects a missing station', () => {
     const result = ManifestSchema.safeParse({
       worldSpriteScale: 1,

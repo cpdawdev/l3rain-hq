@@ -53,8 +53,9 @@ describe('resolveRenderPath (placeholder fallback rules)', () => {
     expect(resolveRenderPath({ status: 'placeholder', spriteKind: 'full-body' }, true)).toBe(
       'placeholder-sprite',
     );
+    // interim portrait tokens now render as animated chibi paper-dolls
     expect(resolveRenderPath({ status: 'placeholder', spriteKind: 'portrait-token' }, true)).toBe(
-      'portrait-token',
+      'chibi',
     );
   });
 });

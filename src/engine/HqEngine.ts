@@ -183,6 +183,10 @@ export class HqEngine {
       spritesLayer: engine.layers.sprites,
       fxLayer: engine.layers.fx,
     });
+    // pose each agent's animated doll (chibi / directional-sheet) every frame
+    engine.simulation.setPoseRenderer((id, pose) => {
+      engine.agents.get(id)?.doll?.update(pose);
+    });
     app.ticker.add(engine.simulation.update);
     // Overlay (labels + diagnostics) must re-project every frame so they ride
     // along with walking agents, not just on camera changes.

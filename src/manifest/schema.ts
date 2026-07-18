@@ -12,6 +12,35 @@ export const StationSchema = z.object({
   y: z.number(),
 });
 
+/** Frames a state occupies within a direction strip (see pipeline PART 1.7). */
+export const SheetStateSchema = z.object({
+  frames: z.number().int().positive(),
+});
+
+/**
+ * Future final-art contract: one horizontal sprite strip per direction, each
+ * strip laid out as [idle frames…][walk frames…] at a fixed frameSize. `sw`/`nw`
+ * are optional (the engine mirrors `se`/`ne` when absent). Dropping a manifest
+ * entry with spriteKind "directional-sheet" + these files swaps the procedural
+ * chibi for the baked sheets with ZERO code changes.
+ */
+export const DirectionalSheetSchema = z.object({
+  directions: z.object({
+    se: z.string().min(1),
+    sw: z.string().min(1).optional(),
+    ne: z.string().min(1),
+    nw: z.string().min(1).optional(),
+  }),
+  states: z.object({
+    idle: SheetStateSchema,
+    walk: SheetStateSchema,
+  }),
+  frameSize: z.object({
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+  }),
+});
+
 export const AgentAssetSchema = z.object({
   id: z.string().min(1),
   /** Sprite path relative to assets/. May be a full-body sprite or, interim, a portrait. */
@@ -22,17 +51,22 @@ export const AgentAssetSchema = z.object({
   flip: z.boolean().default(false),
   station: StationSchema,
   /**
-   * production  — final full-body sprite art
-   * placeholder — missing art OR interim art (e.g. portrait tokens); always
-   *               rendered with an explicit interim/placeholder treatment
+   * production  — final full-body / directional-sheet art
+   * placeholder — missing art OR interim art (e.g. portrait tokens rendered as
+   *               animated chibis); always carries an explicit interim treatment
    */
   status: z.enum(['production', 'placeholder']).default('placeholder'),
   /**
-   * How the sprite file should be presented while status is "placeholder":
-   * "portrait-token" — the file is a face portrait; render as a floating token
-   * "full-body"      — the file is real full-body art
+   * How the sprite is presented:
+   * "portrait-token"    — `sprite` is a face portrait → animated chibi paper-doll
+   *                        (procedural cel-shaded body + the portrait as the head)
+   * "full-body"         — `sprite` is a single full-body still
+   * "directional-sheet" — `directionalSheet` carries baked 4-direction idle/walk
+   *                        strips (final art); drops in with zero code changes
    */
-  spriteKind: z.enum(['full-body', 'portrait-token']).default('full-body'),
+  spriteKind: z.enum(['full-body', 'portrait-token', 'directional-sheet']).default('full-body'),
+  /** Present only when spriteKind = "directional-sheet". */
+  directionalSheet: DirectionalSheetSchema.optional(),
 });
 
 export const OccluderSchema = z.object({
@@ -97,6 +131,7 @@ export type Occluder = z.infer<typeof OccluderSchema>;
 export type DepartmentRegion = z.infer<typeof DepartmentRegionSchema>;
 export type WaypointNode = z.infer<typeof WaypointNodeSchema>;
 export type WaypointGraph = z.infer<typeof WaypointGraphSchema>;
+export type DirectionalSheet = z.infer<typeof DirectionalSheetSchema>;
 
 export interface ManifestValidation {
   manifest: Manifest;

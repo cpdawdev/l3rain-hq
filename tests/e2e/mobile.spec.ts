@@ -9,11 +9,11 @@ import { expect, test, type CDPSession, type Page } from '@playwright/test';
 
 const URL = '/?data=mock';
 
+// NOTE: the mobile project runs with reducedMotion:'reduce' (playwright.config).
 // These tests validate the CAMERA (pan/pinch/reset) + responsive layout, which
-// are independent of the living simulation. Freezing animation via reduced
-// motion keeps the main thread free so synthetic-touch dispatch stays fast and
-// tap-timing is deterministic under parallel headless-swiftshader load.
-test.use({ reducedMotion: 'reduce' });
+// are independent of the living simulation; freezing animation keeps the main
+// thread free so synthetic-touch dispatch stays fast and tap-timing is
+// deterministic under parallel headless-swiftshader load.
 
 async function waitForEngine(page: Page): Promise<void> {
   await page.waitForSelector('[data-testid="engine-ready"]', {
@@ -99,11 +99,21 @@ async function drag(
 
 async function doubleTap(page: Page, at: { x: number; y: number }): Promise<void> {
   const cdp = await page.context().newCDPSession(page);
-  for (let i = 0; i < 2; i += 1) {
-    await dispatchTouch(cdp, 'touchStart', [{ ...at, id: 1 }]);
-    await dispatchTouch(cdp, 'touchEnd', []);
-    await page.waitForTimeout(90);
-  }
+  // Pipeline the four touch dispatches (no per-send await). Each CDP round-trip
+  // costs ~250ms of ACK latency under headless swiftshader; awaiting each one
+  // stretches the two taps to ~700ms apart — outside the camera's 450ms
+  // double-tap window — even though a real double-tap is two QUICK taps. Queuing
+  // the sends makes the browser stamp them back-to-back (~ms apart, well within
+  // the window), so the reset gesture is exercised deterministically on both
+  // fast CI and a loaded local machine. Order is preserved: cdp.send writes to
+  // the wire in call order and the browser processes touch events FIFO.
+  const p = { ...at, id: 1 };
+  await Promise.all([
+    dispatchTouch(cdp, 'touchStart', [p]),
+    dispatchTouch(cdp, 'touchEnd', []),
+    dispatchTouch(cdp, 'touchStart', [p]),
+    dispatchTouch(cdp, 'touchEnd', []),
+  ]);
   await cdp.detach();
 }
 

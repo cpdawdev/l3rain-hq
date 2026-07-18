@@ -1,22 +1,27 @@
 import { Assets, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 import type { AgentAsset, Manifest } from '../manifest/schema';
 import { ROSTER } from '../data/roster';
+import { Chibi, DirectionalDoll, hashPalette, samplePalette, type Doll } from './chibi';
 
 /** How a given agent ends up on screen. Placeholders are always labeled. */
 export type RenderPath =
-  | 'production-sprite' // final full-body art
-  | 'portrait-token' // interim: face portrait as a floating token (deviation 3)
+  | 'production-sprite' // final full-body still
+  | 'directional-sheet' // final baked 4-direction idle/walk sheets
+  | 'chibi' // interim: animated chibi paper-doll (portrait = head)
   | 'placeholder-sprite' // full-body file exists but status=placeholder → dimmed + tag
   | 'placeholder-silhouette'; // no usable texture → silhouette + tag
 
 /** Pure decision (unit-tested): spec rule — placeholder status is never presented as final. */
 export function resolveRenderPath(
-  entry: Pick<AgentAsset, 'status' | 'spriteKind'>,
+  entry: Pick<AgentAsset, 'status' | 'spriteKind' | 'directionalSheet'>,
   textureLoaded: boolean,
 ): RenderPath {
+  // Baked final art takes priority and does not depend on the portrait texture.
+  if (entry.spriteKind === 'directional-sheet' && entry.directionalSheet) return 'directional-sheet';
   if (!textureLoaded) return 'placeholder-silhouette';
   if (entry.status === 'production') return 'production-sprite';
-  return entry.spriteKind === 'portrait-token' ? 'portrait-token' : 'placeholder-sprite';
+  // Interim portrait tokens are now rendered as animated chibi paper-dolls.
+  return entry.spriteKind === 'portrait-token' ? 'chibi' : 'placeholder-sprite';
 }
 
 export interface AgentVisual {
@@ -30,6 +35,8 @@ export interface AgentVisual {
   /** visual height above the foot point in world px (label anchoring) */
   height: number;
   path: RenderPath;
+  /** animated doll (chibi / directional-sheet) the simulation poses each frame */
+  doll?: Doll;
 }
 
 export interface AgentLayerResult {
@@ -64,6 +71,14 @@ export async function buildAgentLayer(
   const urls = [
     ...manifest.occluders.map((o) => `./${o.file}`),
     ...manifest.agents.map((a) => `./${a.sprite}`),
+    // future baked directional sheets (four strips per agent) preload here too
+    ...manifest.agents.flatMap((a) =>
+      a.spriteKind === 'directional-sheet' && a.directionalSheet
+        ? Object.values(a.directionalSheet.directions)
+            .filter((f): f is string => Boolean(f))
+            .map((f) => `./${f}`)
+        : [],
+    ),
   ];
   const textures = new Map<string, Texture>();
   const results = await Promise.allSettled(
@@ -115,12 +130,13 @@ export async function buildAgentLayer(
       errors.push(`agent ${entry.id}: sprite "${entry.sprite}" failed to load — placeholder`);
     }
 
-    const path = resolveRenderPath(entry, texture !== null);
+    let path = resolveRenderPath(entry, texture !== null);
     const container = new Container();
     container.position.set(entry.station.x, entry.station.y);
     container.zIndex = entry.station.y;
 
     let height = 0;
+    let doll: Doll | undefined;
     switch (path) {
       case 'production-sprite':
       case 'placeholder-sprite': {
@@ -128,9 +144,22 @@ export async function buildAgentLayer(
         height = buildFullBody(container, texture, manifest.worldSpriteScale, entry, path);
         break;
       }
-      case 'portrait-token': {
-        if (!texture) break;
-        height = buildPortraitToken(container, texture, manifest.worldSpriteScale, entry);
+      case 'directional-sheet': {
+        const built = buildDirectionalDoll(container, textures, manifest.worldSpriteScale, entry);
+        if (built) {
+          height = built.height;
+          doll = built.doll;
+        } else {
+          errors.push(`agent ${entry.id}: directional sheets failed to load — silhouette`);
+          height = buildSilhouette(container, manifest.worldSpriteScale, entry);
+          path = 'placeholder-silhouette';
+        }
+        break;
+      }
+      case 'chibi': {
+        const built = buildChibi(container, texture, manifest.worldSpriteScale, entry);
+        height = built.height;
+        doll = built.doll;
         break;
       }
       case 'placeholder-silhouette': {
@@ -156,6 +185,7 @@ export async function buildAgentLayer(
       footY: entry.station.y,
       height,
       path,
+      ...(doll ? { doll } : {}),
     });
   }
 
@@ -185,55 +215,53 @@ function buildFullBody(
 }
 
 /**
- * Interim portrait-token (deviation 3): circular face token floating above the
- * station point with a drop shadow and pointer stem — honestly interim, never
- * presented as a full body.
+ * Interim animated chibi paper-doll (workstream 3): the portrait becomes the
+ * head, the body is procedural cel-shaded parts with a per-agent palette sampled
+ * from the portrait. Still honestly interim (keeps the small INTERIM chip); the
+ * simulation poses it (walk cycle / facings / idle sway) each frame.
  */
-function buildPortraitToken(
+function buildChibi(
   container: Container,
-  texture: Texture,
+  texture: Texture | null,
   worldSpriteScale: number,
   entry: AgentAsset,
-): number {
-  const r = 140 * worldSpriteScale * entry.scale;
-  const cy = -(r + 10 * worldSpriteScale * 5.5);
+): { height: number; doll: Doll } {
+  const palette = texture ? samplePalette(texture, entry.id) : hashPalette(entry.id);
+  const chibi = new Chibi(texture, palette, worldSpriteScale * entry.scale);
+  container.addChild(chibi.root);
+  container.addChild(tag('INTERIM', chibi.height, worldSpriteScale * entry.scale));
+  return { height: chibi.height, doll: chibi };
+}
 
-  // drop shadow at the foot point
-  const shadow = new Graphics()
-    .ellipse(0, 0, r * 0.75, r * 0.26)
-    .fill({ color: 0x000000, alpha: 0.32 });
-  container.addChild(shadow);
-
-  // pointer stem from foot to token
-  const stem = new Graphics()
-    .moveTo(0, -2)
-    .lineTo(-r * 0.16, cy + r * 0.75)
-    .lineTo(r * 0.16, cy + r * 0.75)
-    .closePath()
-    .fill({ color: 0x67e8f9, alpha: 0.35 });
-  container.addChild(stem);
-
-  // token: dark disc, masked portrait, thin cyan ring
-  const disc = new Graphics().circle(0, cy, r).fill({ color: 0x0b1226, alpha: 0.92 });
-  container.addChild(disc);
-
-  const portrait = new Sprite(texture);
-  portrait.anchor.set(0.5);
-  portrait.position.set(0, cy);
-  const pr = (r - 2) * 2;
-  portrait.scale.set(pr / texture.width, pr / texture.height);
-  const mask = new Graphics().circle(0, cy, r - 2).fill(0xffffff);
-  portrait.mask = mask;
-  container.addChild(mask, portrait);
-
-  const ring = new Graphics()
-    .circle(0, cy, r)
-    .stroke({ color: 0x67e8f9, width: Math.max(1.2, r * 0.06), alpha: 0.85 });
-  container.addChild(ring);
-
-  const height = -cy + r;
-  container.addChild(tag('INTERIM', height, worldSpriteScale * entry.scale));
-  return height;
+/**
+ * Final baked directional-sheet art (spriteKind "directional-sheet"): four
+ * idle/walk strips animated behind the same pose contract. No INTERIM chip —
+ * this is production art. Returns null if the sheet textures are missing.
+ */
+function buildDirectionalDoll(
+  container: Container,
+  textures: Map<string, Texture>,
+  worldSpriteScale: number,
+  entry: AgentAsset,
+): { height: number; doll: Doll } | null {
+  const ds = entry.directionalSheet;
+  if (!ds) return null;
+  const tex = (f?: string): Texture | undefined => (f ? textures.get(`./${f}`) : undefined);
+  const se = tex(ds.directions.se);
+  const ne = tex(ds.directions.ne);
+  if (!se || !ne) return null;
+  const doll = new DirectionalDoll(
+    { se, ne, sw: tex(ds.directions.sw), nw: tex(ds.directions.nw) },
+    {
+      idleFrames: ds.states.idle.frames,
+      walkFrames: ds.states.walk.frames,
+      frameW: ds.frameSize.width,
+      frameH: ds.frameSize.height,
+      unitScale: worldSpriteScale * entry.scale,
+    },
+  );
+  container.addChild(doll.root);
+  return { height: doll.height, doll };
 }
 
 /** Dimmed capsule silhouette + PLACEHOLDER tag (spec placeholder rule). */
