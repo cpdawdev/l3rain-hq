@@ -479,5 +479,44 @@
       "width": 370,
       "height": 320
     }
-  ]
+  ],
+  "waypoints": {
+    "nodes": [
+      { "id": "eng-hub", "x": 400, "y": 360, "kind": "room", "department": "engineering" },
+      { "id": "infra-hub", "x": 930, "y": 320, "kind": "room", "department": "infra-ops" },
+      { "id": "integ-hub", "x": 1250, "y": 350, "kind": "room", "department": "integrations" },
+      { "id": "orch-hub", "x": 775, "y": 440, "kind": "room", "department": "orchestrator" },
+      { "id": "cust-hub", "x": 330, "y": 470, "kind": "room", "department": "customer" },
+      { "id": "mkt-hub", "x": 680, "y": 560, "kind": "room", "department": "marketing-design" },
+      { "id": "csuite-hub", "x": 1090, "y": 500, "kind": "room", "department": "c-suite" },
+      { "id": "hall-1", "x": 250, "y": 415, "kind": "hall" },
+      { "id": "hall-2", "x": 430, "y": 415, "kind": "hall" },
+      { "id": "hall-3", "x": 620, "y": 415, "kind": "hall" },
+      { "id": "hall-4", "x": 800, "y": 415, "kind": "hall" },
+      { "id": "hall-5", "x": 940, "y": 415, "kind": "hall" },
+      { "id": "hall-6", "x": 1120, "y": 415, "kind": "hall" },
+      { "id": "hall-7", "x": 1280, "y": 400, "kind": "hall" },
+      { "id": "kitchen", "x": 560, "y": 470, "kind": "break" },
+      { "id": "lounge", "x": 180, "y": 470, "kind": "break" },
+      { "id": "restroom", "x": 1200, "y": 480, "kind": "break" }
+    ],
+    "edges": [
+      ["hall-1", "hall-2"],
+      ["hall-2", "hall-3"],
+      ["hall-3", "hall-4"],
+      ["hall-4", "hall-5"],
+      ["hall-5", "hall-6"],
+      ["hall-6", "hall-7"],
+      ["eng-hub", "hall-2"],
+      ["infra-hub", "hall-5"],
+      ["integ-hub", "hall-7"],
+      ["orch-hub", "hall-4"],
+      ["cust-hub", "hall-1"],
+      ["mkt-hub", "hall-3"],
+      ["csuite-hub", "hall-6"],
+      ["kitchen", "hall-3"],
+      ["lounge", "hall-1"],
+      ["restroom", "hall-6"]
+    ]
+  }
 }
