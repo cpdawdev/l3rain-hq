@@ -67,6 +67,22 @@ const SNAPSHOT = {
   ]
 };
 
+// Authoritative, honest annotation of WHO each phase's remaining work waits on.
+// Keyed by phase INDEX 0..4 (the gates are stable) — independent of the names/pcts
+// the live wire delivers, so a plateaued bar reads as "gated", not "stuck".
+// owner 'joseph' = a tier-3 real-world act only Joseph can trigger; 'agents' = engineering depth.
+const PHASE_GATES = [
+  { owner: 'joseph', act: 'Run the first production deploy' },
+  { owner: 'joseph', act: 'Onboard the first real pilot farm' },
+  { owner: 'joseph', act: 'Enable paid Cloudflare features (Cloudflare-for-SaaS / Workers-for-Platforms)' },
+  { owner: 'agents', act: 'Agents building depth (+ real ESP / gateway when you activate them)' },
+  { owner: 'agents', act: 'Agents building scale + hardening depth' }
+];
+const GATE_CHIP = {
+  joseph: { label: '⏳ YOUR MOVE', cls: 'joseph' },
+  agents: { label: '🔧 agents', cls: 'agents' }
+};
+
 // ONLY the owner-defined status-light vocabulary — no per-department accent hues.
 const STATUS = {
   working: { c: '#3ee06b', label: 'Working' },   // green
@@ -250,7 +266,8 @@ class L3RainHQ {
   buildPhaseRow() {
     const row = document.createElement('div'); row.className = 'phase';
     row.innerHTML = '<div class="phase-head"><span class="name"></span><span class="pct"></span></div>' +
-      '<div class="bar"><div class="bar-fill"></div></div>';
+      '<div class="bar"><div class="bar-fill"></div></div>' +
+      '<div class="phase-gate"><span class="gate-chip"></span><span class="gate-act"></span></div>';
     return row;
   }
   buildDeptRow() {
@@ -278,6 +295,18 @@ class L3RainHQ {
       row.querySelector('.name').textContent = p.name;
       row.querySelector('.pct').textContent = Math.round(p.pct) + '%';
       row.querySelector('.bar-fill').style.width = Math.round(p.pct) + '%';
+      // Honest owner annotation: who the remaining % / gate waits on (by phase index).
+      const gate = PHASE_GATES[i], chipEl = row.querySelector('.gate-chip'), actEl = row.querySelector('.gate-act');
+      if (gate) {
+        const chip = GATE_CHIP[gate.owner] || GATE_CHIP.agents;
+        chipEl.textContent = chip.label;
+        chipEl.className = 'gate-chip ' + chip.cls;
+        actEl.textContent = gate.act;
+        row.title = (gate.owner === 'joseph' ? 'Waiting on Joseph — ' : 'Agents building — ') + gate.act;
+        row.querySelector('.phase-gate').style.display = '';
+      } else {
+        row.querySelector('.phase-gate').style.display = 'none';
+      }
     });
 
     // 5-hour usage bar (recomputed every second so the countdown ticks).

@@ -113,6 +113,21 @@ a:hover { color: #a5f3fc; }
 .bar { height: 9px; border-radius: 5px; background: #12203a; border: 1px solid #1f3a63; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #22d3ee, #3b82f6); width: 0%; }
 
+/* per-phase owner annotation: who the remaining % / gate waits on */
+.phase-gate { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 1px; }
+.gate-chip {
+  flex: 0 0 auto; font-size: 8.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  padding: 1.5px 6px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap;
+}
+.gate-chip.joseph { color: #ffd76b; background: rgba(250,204,21,.13); border-color: rgba(250,204,21,.42); }
+.gate-chip.agents { color: #9fb6d6; background: rgba(143,180,221,.08); border-color: rgba(143,180,221,.28); }
+.gate-act { flex: 1 1 120px; min-width: 0; font-size: 8.5px; line-height: 1.25; color: #6f86a8; letter-spacing: .2px; }
+#hq-phase-summary {
+  font-size: 9.5px; line-height: 1.45; color: #8fb4dd; letter-spacing: .2px;
+  padding: 7px 2px 0; margin-top: 2px; border-top: 1px solid #1c3050;
+}
+#hq-phase-summary .ok { color: #3ee06b; font-weight: 700; }
+
 /* 5-hour usage */
 #l3-usage { display: flex; flex-direction: column; gap: 5px; border: 1px solid #1f3a63; border-radius: 10px; padding: 8px 10px; background: #0c1526; }
 .usage-head { display: flex; justify-content: space-between; color: #b9d2f2; font-size: 10.5px; letter-spacing: 1px; }
@@ -228,6 +243,7 @@ a:hover { color: #a5f3fc; }
       <div id="l3-panel">
 
         <div id="hq-phases"><!-- phase rows rendered by app.js --></div>
+        <div id="hq-phase-summary">Buildable width: shipped <span class="ok">&#10003;</span> — the big bars now wait on you: prod deploy &middot; real pilot &middot; paid features.</div>
 
         <div id="l3-usage">
           <div class="usage-head"><span>5-HOUR USAGE</span><span class="usage-pct-wrap"><span id="hq-usage-pct">—</span><span id="hq-usage-mode" class="usage-mode"></span></span></div>
