@@ -234,6 +234,10 @@ a:hover { color: #a5f3fc; }
     flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important;
     overflow-y: auto !important;
   }
+  /* Phone only: HUD stays fully scrollable but hides its visible scrollbar
+     (owner: keep desktop's normal bar; declutter the phone HUD). */
+  #l3-panel { scrollbar-width: none; -ms-overflow-style: none; }
+  #l3-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
   #l3-panel > div { flex: 1 1 46% !important; min-width: 150px !important; }
   /* Hide the verbose gesture hint on phones — pinch/drag/scroll are self-evident,
      and its full-width text used to run under the +/−/reset buttons (overlap bug).
@@ -254,6 +258,9 @@ a:hover { color: #a5f3fc; }
      responsive across phone-landscape widths (short + tall-ish) — 30vw between a
      210px floor and a 240px cap. It still scrolls internally, map stays dominant. */
   #l3-panel { width: clamp(210px, 30vw, 240px) !important; flex: 0 0 auto !important; flex-direction: column !important; flex-wrap: nowrap !important; overflow-y: auto; padding: 10px !important; gap: 9px !important; }
+  /* Phone only: HUD stays fully scrollable but hides its visible scrollbar. */
+  #l3-panel { scrollbar-width: none; -ms-overflow-style: none; }
+  #l3-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
   #l3-panel > div { flex: 0 0 auto !important; min-width: 0 !important; }
   /* CENTER the map in its right-hand region. The max-width:900px query above also
      matches phones in landscape and pins the wrap to `flex:0 0 auto` (shrink-wrap),
