@@ -221,24 +221,39 @@ a:hover { color: #a5f3fc; }
 
 /* ---------- responsive (same breakpoints as the old build) ---------- */
 @media (max-width: 900px) {
-  #l3-outer { padding: 0 !important; }
-  /* Portrait phone: full-viewport shell so the map can sit at the top as a fixed
-     band and the HUD below owns its OWN scroll (the page body does not scroll). */
-  #l3-shell {
-    border-radius: 0 !important; border-left: none !important; border-right: none !important;
-    height: 100vh; height: 100dvh;
-    max-height: 100vh; max-height: 100dvh;
+  /* LOCK THE PAGE. The dashboard fills the *visible* viewport exactly and never
+     scrolls as a page — only the bottom HUD box scrolls internally. Root-cause fix:
+     the shell used 100dvh (visible area) while #l3-outer was min-height:100vh (the
+     TALLER area behind the address bar), so the page overflowed by the address-bar
+     height → that was the page scrollbar AND the reason the frame's top/bottom
+     border scrolled off-screen and looked "cut off". Matching everything to 100dvh
+     + overflow:hidden removes both. */
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  #l3-outer {
+    padding: 8px !important; min-height: 0 !important;
+    height: 100vh; height: 100dvh; overflow: hidden !important;
   }
-  #l3-row { flex-direction: column-reverse !important; }
-  /* MAP: fixed-height band pinned at the top — stays static, still zoomable (wheel/pinch). */
-  #l3-canvaswrap { flex: 0 0 auto !important; height: 44vh; height: 44dvh; min-height: 0; }
-  /* HUD: takes the remaining height and scrolls independently below the map. */
+  /* FRAMED CARD like desktop (not edge-to-edge): rounded border on all four sides
+     with an even margin, so mobile reads as one fixed, intentional box instead of
+     content bleeding off the edges. */
+  #l3-shell {
+    width: 100% !important;
+    border: 2px solid #2b4a74 !important; border-radius: 18px !important;
+    height: 100%; max-height: 100%;
+  }
+  #l3-row { flex-direction: column-reverse !important; padding: 0 10px 10px 10px !important; }
+  /* TOP BOX — the map: fixed band pinned at the top, stays static, still zoomable. */
+  #l3-canvaswrap { flex: 0 0 auto !important; height: 42vh; height: 42dvh; min-height: 0; }
+  /* BOTTOM BOX — the HUD: fills the remaining height and owns its OWN scroll (the
+     bars scroll up/down inside it). Scrollbar is hidden by the base #l3-panel rule;
+     momentum scroll on iOS; overscroll:contain so the scroll never chains out to the
+     page (which would re-introduce the drift/rubber-band that exposed the edges). */
   #l3-panel {
     width: 100% !important; flex: 1 1 auto !important; min-height: 0 !important;
     flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important;
-    overflow-y: auto !important;
+    overflow-y: auto !important; -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
-  /* scrollbar-hiding now lives on the base #l3-panel rule (all viewports) */
   #l3-panel > div { flex: 1 1 46% !important; min-width: 150px !important; }
   /* Hide the verbose gesture hint on phones — pinch/drag/scroll are self-evident,
      and its full-width text used to run under the +/−/reset buttons (overlap bug).
