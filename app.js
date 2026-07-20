@@ -272,7 +272,7 @@ class L3RainHQ {
   }
   buildDeptRow() {
     const row = document.createElement('div'); row.className = 'dept-row';
-    row.innerHTML = '<span class="dept-dot"></span><span class="dept-name"></span><span class="dept-status"></span>';
+    row.innerHTML = '<span class="dept-dot"></span><span class="dept-name"></span>';
     return row;
   }
   buildKvRow() {
@@ -359,7 +359,7 @@ class L3RainHQ {
       dot.style.background = col;
       dot.style.boxShadow = '0 0 8px ' + col;
       row.querySelector('.dept-name').textContent = DEPT_NAMES[k];
-      row.querySelector('.dept-status').textContent = meta.label;
+      // status TEXT intentionally not rendered — the color dot alone conveys state
     });
 
     // employee activity

@@ -69,6 +69,13 @@ a:hover { color: #a5f3fc; }
   background: #0a0f1e; border: 2px solid #2b4a74; border-radius: 24px;
   box-shadow: 0 0 46px rgba(64,156,255,.16), inset 0 0 80px rgba(24,48,96,.28);
   overflow: hidden;
+  /* Bound the shell to the viewport so the LEFT HUD (not the page body) owns the
+     scroll on tall/short desktops. Column layout lets #l3-row flex-fill the space
+     under the header; the canvas stays fixed while #l3-panel scrolls internally.
+     100dvh (dynamic viewport) handles mobile browser chrome; 100vh is the fallback. */
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
 }
 
 /* ---------- header ---------- */
@@ -98,11 +105,15 @@ a:hover { color: #a5f3fc; }
 #hq-cap-msg { color: #ffe6cc; font-size: 12px; letter-spacing: .4px; }
 
 /* ---------- layout row: side panel + office map ---------- */
-#l3-row { display: flex; gap: 14px; padding: 0 16px 16px 16px; align-items: stretch; }
+#l3-row {
+  display: flex; gap: 14px; padding: 0 16px 16px 16px; align-items: stretch;
+  flex: 1 1 auto; min-height: 0;   /* fill the shell under the header; allow children to shrink so the HUD can scroll */
+}
 #l3-panel {
   width: 252px; flex: 0 0 auto;
   background: rgba(13,20,38,.92); border: 1px solid #243a5e; border-radius: 16px;
   padding: 14px; display: flex; flex-direction: column; gap: 13px;
+  min-height: 0; overflow-y: auto;   /* the HUD owns the scrollbar; the map/canvas stays fixed */
 }
 
 /* phases */
@@ -161,7 +172,7 @@ a:hover { color: #a5f3fc; }
 .dept-row { display: flex; align-items: center; gap: 8px; }
 .dept-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.25); }
 .dept-name { color: #dbe9fb; font-size: 12px; flex: 1; }
-.dept-status { color: #7d94b8; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; }
+/* .dept-status removed — department state is shown by the color dot only (no status text) */
 
 /* employee activity + live data feed boxes */
 .side-box { display: flex; flex-direction: column; gap: 5px; border: 1px solid #1f3a63; border-radius: 10px; padding: 8px 10px; background: #0c1526; }
@@ -182,7 +193,11 @@ a:hover { color: #a5f3fc; }
   background: linear-gradient(160deg, #0e1730, #0a1020);
   border: 1px solid #243a5e; border-radius: 16px; overflow: hidden;
 }
-#l3rain-canvas { display: block; width: 100%; height: auto; touch-action: none; }
+/* width:100% by default; max-height:100% keeps the map inside a height-bounded
+   wrap (letterboxed, aspect preserved) so it stays fully visible and fixed while
+   the HUD scrolls. Aspect ratio is preserved, so the JS pointer mapping (uniform
+   el.width/rect.width scale) remains correct. */
+#l3rain-canvas { display: block; width: 100%; height: auto; max-height: 100%; margin: 0 auto; touch-action: none; }
 .canvas-hint {
   position: absolute; left: 12px; bottom: 10px;
   display: flex; align-items: center; gap: 8px;
@@ -199,19 +214,34 @@ a:hover { color: #a5f3fc; }
 
 /* ---------- responsive (same breakpoints as the old build) ---------- */
 @media (max-width: 900px) {
-  #l3-shell { border-radius: 0 !important; border-left: none !important; border-right: none !important; }
-  #l3-row { flex-direction: column-reverse !important; }
-  #l3-panel { width: 100% !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important; }
-  #l3-panel > div { flex: 1 1 46% !important; min-width: 150px !important; }
   #l3-outer { padding: 0 !important; }
+  /* Portrait phone: full-viewport shell so the map can sit at the top as a fixed
+     band and the HUD below owns its OWN scroll (the page body does not scroll). */
+  #l3-shell {
+    border-radius: 0 !important; border-left: none !important; border-right: none !important;
+    height: 100vh; height: 100dvh;
+    max-height: 100vh; max-height: 100dvh;
+  }
+  #l3-row { flex-direction: column-reverse !important; }
+  /* MAP: fixed-height band pinned at the top — stays static, still zoomable (wheel/pinch). */
+  #l3-canvaswrap { flex: 0 0 auto !important; height: 44vh; height: 44dvh; min-height: 0; }
+  /* HUD: takes the remaining height and scrolls independently below the map. */
+  #l3-panel {
+    width: 100% !important; flex: 1 1 auto !important; min-height: 0 !important;
+    flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important;
+    overflow-y: auto !important;
+  }
+  #l3-panel > div { flex: 1 1 46% !important; min-width: 150px !important; }
 }
 @media (max-width: 560px) {
   #l3-panel > div { flex: 1 1 100% !important; }
 }
-/* Landscape phone / short viewport: keep panel beside the map, fit the map to height */
+/* Landscape phone / short viewport: HUD scrolls beside the map, map fits to height.
+   The base rules already bound the shell and give the HUD its own scroll; this
+   just narrows the panel and fits the canvas to the (short) height. */
 @media (orientation: landscape) and (max-height: 600px) {
   #l3-outer { padding: 0 !important; align-items: stretch !important; }
-  #l3-shell { width: 100% !important; min-height: 100vh; height: 100vh; display: flex; flex-direction: column; }
+  #l3-shell { width: 100% !important; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; }
   #l3-row { flex-direction: row !important; flex: 1 1 auto; min-height: 0; padding: 0 8px 8px 8px !important; }
   #l3-panel { width: 186px !important; flex: 0 0 186px !important; flex-direction: column !important; flex-wrap: nowrap !important; overflow-y: auto; padding: 10px !important; gap: 9px !important; }
   #l3-panel > div { flex: 0 0 auto !important; min-width: 0 !important; }
