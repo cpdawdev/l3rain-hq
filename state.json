@@ -40,7 +40,7 @@
       "resetIso": "2026-08-05T21:40:00Z",
       "pctElapsed": 41,
       "usedPct": 35,
-      "secsToReset": 10639,
+      "secsToReset": 10565,
       "windowOpen": true
     },
     "weekly": {
@@ -73,7 +73,7 @@
     },
     {
       "k": "Updated",
-      "v": "2026-08-05T18:42Z",
+      "v": "2026-08-05T18:43Z",
       "c": "#67e8f9"
     }
   ]
