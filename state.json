@@ -1,24 +1,80 @@
 {
   "phases": [
-    { "name": "PHASE 0 · PREPARATION", "pct": 100 },
-    { "name": "PHASE 1 · PLANNING", "pct": 100 },
-    { "name": "PHASE 2 · EXECUTION", "pct": 74 },
-    { "name": "PHASE 3 · VALIDATION", "pct": 41 },
-    { "name": "PHASE 4 · OPTIMIZATION", "pct": 12 }
+    {
+      "name": "PHASE 0 · FOUNDATIONS",
+      "pct": 100
+    },
+    {
+      "name": "PHASE 1 · MVP + REAL PILOT",
+      "pct": 96
+    },
+    {
+      "name": "PHASE 2 · AUTO PROVISIONING",
+      "pct": 84
+    },
+    {
+      "name": "PHASE 3 · AGENT-RUN OPS",
+      "pct": 83
+    },
+    {
+      "name": "PHASE 4 · SCALE + OVERNIGHT",
+      "pct": 38
+    }
   ],
   "departments": {
     "orchestrator": "working",
     "engineering": "working",
-    "infra": "working",
-    "integrations": "waiting",
-    "customer": "idle",
-    "marketing": "working",
-    "csuite": "opening"
+    "infra": "idle",
+    "integrations": "idle",
+    "customer": "working",
+    "marketing": "idle",
+    "csuite": "waiting"
+  },
+  "usage": {
+    "capActive": false,
+    "capReason": null,
+    "resetIso": "2026-08-05T06:40:00Z",
+    "windowStartIso": "2026-08-05T01:40:00Z",
+    "fiveHour": {
+      "startIso": "2026-08-05T01:40:00Z",
+      "resetIso": "2026-08-05T06:40:00Z",
+      "pctElapsed": 12,
+      "usedPct": 26,
+      "secsToReset": 15812,
+      "windowOpen": true
+    },
+    "weekly": {
+      "resetIso": "2026-08-07T15:59:59Z",
+      "usedPct": 73
+    },
+    "tokenPresent": true,
+    "source": "live-push"
   },
   "feed": [
-    { "k": "Repo state", "v": "clean", "c": "#4ade80" },
-    { "k": "GH Actions", "v": "run OK", "c": "#4ade80" },
-    { "k": "Resume-queue", "v": "active", "c": "#67e8f9" },
-    { "k": "Waker", "v": "armed", "c": "#facc15" }
+    {
+      "k": "Source",
+      "v": "/status live",
+      "c": "#4ade80"
+    },
+    {
+      "k": "Lights",
+      "v": "snapshot",
+      "c": "#facc15"
+    },
+    {
+      "k": "Phases",
+      "v": "5 tracked",
+      "c": "#67e8f9"
+    },
+    {
+      "k": "Usage",
+      "v": "5h window 12%",
+      "c": "#67e8f9"
+    },
+    {
+      "k": "Updated",
+      "v": "2026-08-05T02:16Z",
+      "c": "#67e8f9"
+    }
   ]
 }
