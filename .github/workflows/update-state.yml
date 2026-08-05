@@ -1,8 +1,20 @@
 name: Update L3RAIN dashboard state
 
-# Writes state.json from your repo state so the Command Center dashboard
-# reflects reality. Runs on every push, when other workflows finish, and
-# every 5 minutes. Adjust the "Build state.json" step to compute real values.
+# Writes state.json from the REAL l3rain status feed so the Command Center shows
+# the project, not a template.
+#
+# HISTORY — read before editing. From this file's creation until 2026-08-05 the
+# step below wrote HARDCODED PLACEHOLDER values that shipped with the dashboard
+# scaffold ("PHASE 2 · EXECUTION 74%"), under a comment saying "EDIT THIS BLOCK
+# to compute real values for your project". Nobody ever did. The workflow ran
+# every 5 minutes and went green every time, so the dashboard looked alive while
+# reporting a generic project that does not exist. Joseph read those numbers for
+# two weeks. That is why this now fetches, and why it FAILS LOUDLY rather than
+# writing anything it did not get from the source.
+#
+# SOURCE OF TRUTH: the arch-docs Worker's /status.json, which parses the ASCII
+# bars in docs/l3rain_operational_status.md in the l3rain repo. Same text the
+# human-readable /status page renders, so these numbers cannot drift from it.
 
 on:
   push:
@@ -20,48 +32,77 @@ concurrency:
   group: l3rain-state
   cancel-in-progress: true
 
+env:
+  STATUS_URL: https://l3rain-arch-docs-stage.cpda-wdev.workers.dev/status.json
+
 jobs:
   update-state:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build state.json
+      - name: Fetch the real status feed
         run: |
-          # ---- EDIT THIS BLOCK to compute real values for your project ----
-          # Department status values: working | error | waiting | idle | opening | done
-          cat > state.json <<'JSON'
-          {
-            "phases": [
-              { "name": "PHASE 0 · PREPARATION", "pct": 100 },
-              { "name": "PHASE 1 · PLANNING", "pct": 100 },
-              { "name": "PHASE 2 · EXECUTION", "pct": 74 },
-              { "name": "PHASE 3 · VALIDATION", "pct": 41 },
-              { "name": "PHASE 4 · OPTIMIZATION", "pct": 12 }
-            ],
-            "departments": {
-              "orchestrator": "working",
-              "engineering": "working",
-              "infra": "working",
-              "integrations": "waiting",
-              "customer": "idle",
-              "marketing": "working",
-              "csuite": "opening"
-            },
-            "feed": [
-              { "k": "Repo state", "v": "clean", "c": "#4ade80" },
-              { "k": "GH Actions", "v": "run OK", "c": "#4ade80" },
-              { "k": "Resume-queue", "v": "active", "c": "#67e8f9" },
-              { "k": "Waker", "v": "armed", "c": "#facc15" }
-            ]
+          set -euo pipefail
+          # --fail turns an HTTP error into a non-zero exit instead of writing an
+          # error page into fetched.json. Retries cover a cold Worker.
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 \
+               --max-time 30 -o fetched.json "$STATUS_URL"
+
+      - name: Validate before writing
+        run: |
+          set -euo pipefail
+          # A partial or reshaped payload must NOT reach state.json — a dashboard
+          # showing confidently wrong numbers is worse than one showing stale
+          # ones, which is the whole lesson of this file's first two weeks.
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const j = JSON.parse(fs.readFileSync("fetched.json", "utf8"));
+
+          const bars = (v, name, min) => {
+            if (!Array.isArray(v) || v.length < min) {
+              throw new Error(`${name}: expected at least ${min} entries, got ${Array.isArray(v) ? v.length : typeof v}`);
+            }
+            for (const p of v) {
+              if (typeof p.name !== "string" || !p.name) throw new Error(`${name}: an entry has no name`);
+              if (typeof p.pct !== "number" || p.pct < 0 || p.pct > 100) {
+                throw new Error(`${name}: "${p.name}" has pct=${p.pct}`);
+              }
+            }
+          };
+
+          bars(j.phases, "phases", 5);
+          // `structure` is the S1-S9 track. Optional so this workflow keeps
+          // working against an arch-docs deploy that predates it — but when it
+          // IS present it must be well-formed like everything else.
+          if (j.structure !== undefined) bars(j.structure, "structure", 1);
+
+          if (!j.departments || typeof j.departments !== "object") {
+            throw new Error("departments: missing or not an object");
           }
-          JSON
-          # ----------------------------------------------------------------
+
+          // Refuse the exact placeholder text this file used to emit, so the
+          // scaffold values can never quietly come back.
+          const placeholders = ["PREPARATION", "PLANNING", "EXECUTION", "VALIDATION", "OPTIMIZATION"];
+          const names = j.phases.map((p) => String(p.name).toUpperCase());
+          if (placeholders.every((w) => names.some((n) => n.includes(w)))) {
+            throw new Error("phases look like the dashboard scaffold's placeholder values — refusing to publish");
+          }
+
+          fs.writeFileSync("state.json", JSON.stringify(j, null, 2) + "\n");
+          console.log(
+            `wrote state.json — ${j.phases.length} phases, ` +
+            `${j.structure ? j.structure.length : 0} structure entries, ` +
+            `${Object.keys(j.departments).length} departments`,
+          );
+          NODE
 
       - name: Commit if changed
         run: |
+          set -euo pipefail
+          rm -f fetched.json
           git config user.name "l3rain-bot"
           git config user.email "actions@github.com"
           git add state.json
-          git diff --staged --quiet || git commit -m "chore: update dashboard state"
+          git diff --staged --quiet || git commit -m "chore: update dashboard state from the live status feed"
           git push
