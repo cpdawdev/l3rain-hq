@@ -33,14 +33,14 @@
   "usage": {
     "capActive": false,
     "capReason": null,
-    "resetIso": "2026-08-06T07:40:00Z",
-    "windowStartIso": "2026-08-06T02:40:00Z",
+    "resetIso": "2026-08-06T07:39:59Z",
+    "windowStartIso": "2026-08-06T02:39:59Z",
     "fiveHour": {
-      "startIso": "2026-08-06T02:40:00Z",
-      "resetIso": "2026-08-06T07:40:00Z",
+      "startIso": "2026-08-06T02:39:59Z",
+      "resetIso": "2026-08-06T07:39:59Z",
       "pctElapsed": 15,
-      "usedPct": 19,
-      "secsToReset": 15279,
+      "usedPct": 20,
+      "secsToReset": 15260,
       "windowOpen": true
     },
     "weekly": {
