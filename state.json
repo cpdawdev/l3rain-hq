@@ -33,22 +33,19 @@
   "usage": {
     "capActive": false,
     "capReason": null,
-    "resetIso": "2026-08-06T12:40:00Z",
-    "windowStartIso": "2026-08-06T07:40:00Z",
+    "resetIso": "2026-08-06T16:00:00Z",
+    "windowStartIso": "2026-08-06T11:00:00Z",
     "fiveHour": {
-      "startIso": "2026-08-06T07:40:00Z",
-      "resetIso": "2026-08-06T12:40:00Z",
-      "pctElapsed": 100,
-      "usedPct": 12,
-      "secsToReset": 15,
+      "startIso": "2026-08-06T11:00:00Z",
+      "resetIso": "2026-08-06T16:00:00Z",
+      "pctElapsed": 33,
+      "usedPct": null,
+      "secsToReset": 11999,
       "windowOpen": true
     },
-    "weekly": {
-      "resetIso": "2026-08-07T16:00:00Z",
-      "usedPct": 91
-    },
+    "weekly": null,
     "tokenPresent": true,
-    "source": "live-push"
+    "source": "synth"
   },
   "feed": [
     {
@@ -68,12 +65,12 @@
     },
     {
       "k": "Usage",
-      "v": "5h window 100%",
+      "v": "5h window 33%",
       "c": "#67e8f9"
     },
     {
       "k": "Updated",
-      "v": "2026-08-06T12:39Z",
+      "v": "2026-08-06T12:40Z",
       "c": "#67e8f9"
     }
   ]
