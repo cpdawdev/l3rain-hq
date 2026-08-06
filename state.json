@@ -40,11 +40,11 @@
       "resetIso": "2026-08-06T07:39:59Z",
       "pctElapsed": 17,
       "usedPct": 20,
-      "secsToReset": 14971,
+      "secsToReset": 14946,
       "windowOpen": true
     },
     "weekly": {
-      "resetIso": "2026-08-07T16:00:00Z",
+      "resetIso": "2026-08-07T15:59:59Z",
       "usedPct": 89
     },
     "tokenPresent": true,
