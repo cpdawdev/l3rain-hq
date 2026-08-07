@@ -38,14 +38,14 @@
     "fiveHour": {
       "startIso": "2026-08-07T16:10:00Z",
       "resetIso": "2026-08-07T21:10:00Z",
-      "pctElapsed": 5,
-      "usedPct": 8,
-      "secsToReset": 17032,
+      "pctElapsed": 6,
+      "usedPct": 10,
+      "secsToReset": 16974,
       "windowOpen": true
     },
     "weekly": {
       "resetIso": "2026-08-14T16:00:00Z",
-      "usedPct": 0
+      "usedPct": 1
     },
     "tokenPresent": true,
     "source": "live-push"
@@ -68,12 +68,12 @@
     },
     {
       "k": "Usage",
-      "v": "5h window 5%",
+      "v": "5h window 6%",
       "c": "#67e8f9"
     },
     {
       "k": "Updated",
-      "v": "2026-08-07T16:26Z",
+      "v": "2026-08-07T16:27Z",
       "c": "#67e8f9"
     }
   ]
