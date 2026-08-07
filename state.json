@@ -33,14 +33,14 @@
   "usage": {
     "capActive": false,
     "capReason": null,
-    "resetIso": "2026-08-07T06:10:00Z",
-    "windowStartIso": "2026-08-07T01:10:00Z",
+    "resetIso": "2026-08-07T06:09:59Z",
+    "windowStartIso": "2026-08-07T01:09:59Z",
     "fiveHour": {
-      "startIso": "2026-08-07T01:10:00Z",
-      "resetIso": "2026-08-07T06:10:00Z",
+      "startIso": "2026-08-07T01:09:59Z",
+      "resetIso": "2026-08-07T06:09:59Z",
       "pctElapsed": 87,
       "usedPct": 19,
-      "secsToReset": 2391,
+      "secsToReset": 2337,
       "windowOpen": true
     },
     "weekly": {
@@ -73,7 +73,7 @@
     },
     {
       "k": "Updated",
-      "v": "2026-08-07T05:30Z",
+      "v": "2026-08-07T05:31Z",
       "c": "#67e8f9"
     }
   ]
