@@ -38,9 +38,9 @@
     "fiveHour": {
       "startIso": "2026-09-05T21:00:00Z",
       "resetIso": "2026-09-06T02:00:00Z",
-      "pctElapsed": 5,
+      "pctElapsed": 6,
       "usedPct": null,
-      "secsToReset": 17027,
+      "secsToReset": 16979,
       "windowOpen": true
     },
     "weekly": null,
@@ -65,12 +65,12 @@
     },
     {
       "k": "Usage",
-      "v": "5h window 5%",
+      "v": "5h window 6%",
       "c": "#67e8f9"
     },
     {
       "k": "Updated",
-      "v": "2026-09-05T21:16Z",
+      "v": "2026-09-05T21:17Z",
       "c": "#67e8f9"
     }
   ]
